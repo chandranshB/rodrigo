@@ -7,7 +7,7 @@ import { House as Home, Bell, User, MagnifyingGlass as Search, PlayCircle } from
 
 // Import Screens
 import { HomeScreen } from '../screens/HomeScreen';
-import { UpdatesScreen } from '../screens/UpdatesScreen';
+import { UpdatesScreen } from '../screens/ExploreScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { ReelsScreen } from '../screens/ReelsScreen';
 import { StoryViewerScreen } from '../screens/StoryViewerScreen';

@@ -11,6 +11,15 @@ import { useNavigation } from '@react-navigation/native';
 const HomeHeader = () => {
   const navigation = useNavigation<any>();
 
+  // Deduplicate: one ring per user, in order of first appearance
+  const storyUsers = mockStories.reduce<string[]>((acc, s) => {
+    if (!acc.includes(s.userId)) acc.push(s.userId);
+    return acc;
+  }, []);
+
+  const hasUnread = (userId: string) =>
+    mockStories.some(s => s.userId === userId && !s.viewed);
+
   return (
     <View>
       <ScrollView
@@ -24,13 +33,16 @@ const HomeHeader = () => {
           hasUnread={false}
           onPress={() => {}}
         />
-        {mockStories.map((story) => (
+        {storyUsers.map((userId, index) => (
           <StoryRing
-            key={story.id}
-            avatar={mockUsers[story.userId].avatar}
-            username={mockUsers[story.userId].username}
-            hasUnread={!story.viewed}
-            onPress={() => navigation.navigate('StoryViewer', { userId: story.userId })}
+            key={userId}
+            avatar={mockUsers[userId].avatar}
+            username={mockUsers[userId].username}
+            hasUnread={hasUnread(userId)}
+            onPress={() => navigation.navigate('StoryViewer', {
+              userIds: storyUsers,
+              initialUserIndex: index,
+            })}
           />
         ))}
       </ScrollView>

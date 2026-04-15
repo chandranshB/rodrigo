@@ -22,7 +22,7 @@ const ExploreHeader = () => (
             <View style={styles.communityIconContainer}>
               <Image source={{ uri: community.icon }} style={styles.communityIcon} />
             </View>
-            <Text style={styles.communityName}>r/{community.slug}</Text>
+            <Text style={styles.communityName}>{community.name}</Text>
             <Text style={styles.memberCount}>{community.memberCount} members</Text>
             <TouchableOpacity style={styles.joinBtn}>
               <Text style={styles.joinBtnText}>Join</Text>

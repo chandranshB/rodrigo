@@ -107,9 +107,16 @@ export const mockCommunities: Community[] = [
 ];
 
 export const mockStories: Story[] = [
-  { id: 's1', userId: 'u1', mediaUrl: 'https://picsum.photos/seed/s1/1080/1920', timestamp: '1h', viewed: false },
-  { id: 's2', userId: 'u2', mediaUrl: 'https://picsum.photos/seed/s2/1080/1920', timestamp: '2h', viewed: false },
-  { id: 's3', userId: 'u3', mediaUrl: 'https://picsum.photos/seed/s3/1080/1920', timestamp: '3h', viewed: true },
+  { id: 's1a', userId: 'u1', mediaUrl: 'https://picsum.photos/seed/s1a/1080/1920', timestamp: '1h', viewed: false },
+  { id: 's1b', userId: 'u1', mediaUrl: 'https://picsum.photos/seed/s1b/1080/1920', timestamp: '1h', viewed: false },
+  { id: 's1c', userId: 'u1', mediaUrl: 'https://picsum.photos/seed/s1c/1080/1920', timestamp: '2h', viewed: false },
+  { id: 's2a', userId: 'u2', mediaUrl: 'https://picsum.photos/seed/s2a/1080/1920', timestamp: '2h', viewed: false },
+  { id: 's2b', userId: 'u2', mediaUrl: 'https://picsum.photos/seed/s2b/1080/1920', timestamp: '3h', viewed: false },
+  { id: 's3a', userId: 'u3', mediaUrl: 'https://picsum.photos/seed/s3a/1080/1920', timestamp: '3h', viewed: true },
+  { id: 's3b', userId: 'u3', mediaUrl: 'https://picsum.photos/seed/s3b/1080/1920', timestamp: '4h', viewed: true },
+  { id: 's4a', userId: 'u4', mediaUrl: 'https://picsum.photos/seed/s4a/1080/1920', timestamp: '4h', viewed: false },
+  { id: 's5a', userId: 'u5', mediaUrl: 'https://picsum.photos/seed/s5a/1080/1920', timestamp: '5h', viewed: false },
+  { id: 's5b', userId: 'u5', mediaUrl: 'https://picsum.photos/seed/s5b/1080/1920', timestamp: '5h', viewed: false },
 ];
 
 export const mockPosts: Post[] = [

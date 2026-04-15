@@ -1,161 +1,244 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { View, Image, StyleSheet, Dimensions, Text, TouchableOpacity, StatusBar, TextInput, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import {
+  View,
+  Image,
+  StyleSheet,
+  Dimensions,
+  Text,
+  TouchableOpacity,
+  StatusBar,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+} from 'react-native';
+import { GestureDetector, Gesture, GestureHandlerRootView } from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+  runOnJS,
+  cancelAnimation,
+  withSpring,
+} from 'react-native-reanimated';
 import { theme } from '../theme/theme';
 import { mockUsers, mockStories } from '../data/mockDatabase';
-import { X, DotsThreeVertical as MoreVertical, PaperPlaneRight as Send, Heart } from 'phosphor-react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing, runOnJS, cancelAnimation } from 'react-native-reanimated';
+import { X, Heart, PaperPlaneRight as Send } from 'phosphor-react-native';
 
 const { width, height } = Dimensions.get('window');
+const STORY_DURATION = 5000;
+const SWIPE_THRESHOLD = 60;
 
 export const StoryViewerScreen = ({ route, navigation }: any) => {
-  const { userId } = route.params;
+  const { userIds, initialUserIndex } = route.params as {
+    userIds: string[];
+    initialUserIndex: number;
+  };
+
+  const [userIndex, setUserIndex] = useState(initialUserIndex);
+  const [storyIndex, setStoryIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const progress = useSharedValue(0);
+  const translateX = useSharedValue(0);
+
+  const userId = userIds[userIndex];
   const user = mockUsers[userId];
   const userStories = mockStories.filter(s => s.userId === userId);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-  const progress = useSharedValue(0);
-  const duration = 5000;
+  const story = userStories[storyIndex];
 
-  const nextStory = () => {
-    if (currentIndex < userStories.length - 1) {
-      setCurrentIndex(prev => prev + 1);
-      progress.value = 0;
-    } else {
+  // ─── Navigation helpers ───────────────────────────────────────────────────
+
+  const goToUser = useCallback((newUserIndex: number, fromStoryIndex = 0) => {
+    if (newUserIndex < 0 || newUserIndex >= userIds.length) {
       navigation.goBack();
+      return;
     }
-  };
+    cancelAnimation(progress);
+    progress.value = 0;
+    setStoryIndex(fromStoryIndex);
+    setUserIndex(newUserIndex);
+  }, [userIds, navigation, progress]);
 
-  const prevStory = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex(prev => prev - 1);
+  const nextStory = useCallback(() => {
+    if (storyIndex < userStories.length - 1) {
       progress.value = 0;
+      setStoryIndex(i => i + 1);
     } else {
-      // If at first story, restart it
-      progress.value = 0;
-      startAnimation();
+      goToUser(userIndex + 1, 0);
     }
-  };
+  }, [storyIndex, userStories.length, userIndex, goToUser, progress]);
 
-  const startAnimation = () => {
+  const prevStory = useCallback(() => {
+    if (storyIndex > 0) {
+      progress.value = 0;
+      setStoryIndex(i => i - 1);
+    } else if (userIndex > 0) {
+      // Go to last story of previous user
+      const prevUserId = userIds[userIndex - 1];
+      const prevUserStories = mockStories.filter(s => s.userId === prevUserId);
+      goToUser(userIndex - 1, prevUserStories.length - 1);
+    } else {
+      // Restart current story
+      progress.value = 0;
+      startProgress();
+    }
+  }, [storyIndex, userIndex, userIds, goToUser, progress]);
+
+  // ─── Progress animation ───────────────────────────────────────────────────
+
+  const startProgress = useCallback(() => {
+    const remaining = STORY_DURATION * (1 - progress.value);
     progress.value = withTiming(1, {
-      duration: duration * (1 - progress.value),
+      duration: remaining,
       easing: Easing.linear,
     }, (finished) => {
-      if (finished) {
-        runOnJS(nextStory)();
-      }
+      if (finished) runOnJS(nextStory)();
     });
-  };
+  }, [progress, nextStory]);
 
-  const pauseAnimation = () => {
+  const pauseProgress = useCallback(() => {
     cancelAnimation(progress);
     setIsPaused(true);
-  };
+  }, [progress]);
 
-  const resumeAnimation = () => {
+  const resumeProgress = useCallback(() => {
     setIsPaused(false);
-    startAnimation();
-  };
+    startProgress();
+  }, [startProgress]);
 
   useEffect(() => {
     progress.value = 0;
-    startAnimation();
+    startProgress();
     return () => cancelAnimation(progress);
-  }, [currentIndex]);
+  }, [storyIndex, userIndex]);
+
+  // ─── Swipe gesture (left = next user, right = prev user) ─────────────────
+
+  const swipeGesture = Gesture.Pan()
+    .onUpdate((e) => {
+      translateX.value = e.translationX;
+    })
+    .onEnd((e) => {
+      if (e.translationX < -SWIPE_THRESHOLD) {
+        translateX.value = withSpring(0);
+        runOnJS(goToUser)(userIndex + 1, 0);
+      } else if (e.translationX > SWIPE_THRESHOLD) {
+        translateX.value = withSpring(0);
+        runOnJS(goToUser)(userIndex - 1, 0);
+      } else {
+        translateX.value = withSpring(0);
+      }
+    });
+
+  const animatedSlide = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
 
   const progressStyle = useAnimatedStyle(() => ({
     width: `${progress.value * 100}%`,
   }));
 
-  const story = userStories[currentIndex];
+  if (!story) return null;
 
   return (
-    <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
-    >
-      <StatusBar hidden />
-      
-      {/* Background Image */}
-      <Image source={{ uri: story.mediaUrl }} style={styles.media} resizeMode="cover" />
-      
-      {/* Navigation & Interaction Layer */}
-      <View style={styles.overlay}>
-        {/* Progress Bars */}
-        <View style={styles.progressContainer}>
-          {userStories.map((_, index) => (
-            <View key={index} style={styles.progressBarBackground}>
-              <Animated.View 
-                style={[
-                  styles.progressBar, 
-                  index === currentIndex ? progressStyle : (index < currentIndex ? { width: '100%' } : { width: '0%' })
-                ]} 
-              />
+    <GestureHandlerRootView style={styles.root}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.root}
+      >
+        <StatusBar hidden />
+        <GestureDetector gesture={swipeGesture}>
+          <Animated.View style={[styles.container, animatedSlide]}>
+            {/* Background image */}
+            <Image source={{ uri: story.mediaUrl }} style={styles.media} resizeMode="cover" />
+
+            <View style={styles.overlay}>
+              {/* Progress bars */}
+              <View style={styles.progressContainer}>
+                {userStories.map((_, i) => (
+                  <View key={i} style={styles.progressTrack}>
+                    <Animated.View
+                      style={[
+                        styles.progressFill,
+                        i === storyIndex
+                          ? progressStyle
+                          : { width: i < storyIndex ? '100%' : '0%' },
+                      ]}
+                    />
+                  </View>
+                ))}
+              </View>
+
+              {/* Header */}
+              <View style={styles.header}>
+                <View style={styles.userInfo}>
+                  <Image source={{ uri: user.avatar }} style={styles.avatar} />
+                  <View>
+                    <Text style={styles.username}>{user.username}</Text>
+                    <Text style={styles.timestamp}>{story.timestamp}</Text>
+                  </View>
+                </View>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
+                  <X color="#FFF" size={28} />
+                </TouchableOpacity>
+              </View>
+
+              {/* Tap zones */}
+              <View style={styles.tapArea}>
+                <Pressable
+                  style={styles.tapSide}
+                  onPress={prevStory}
+                  onLongPress={pauseProgress}
+                  onPressOut={() => isPaused && resumeProgress()}
+                />
+                <Pressable
+                  style={styles.tapSide}
+                  onPress={nextStory}
+                  onLongPress={pauseProgress}
+                  onPressOut={() => isPaused && resumeProgress()}
+                />
+              </View>
+
+              {/* Footer */}
+              <View style={styles.footer}>
+                <View style={styles.replyBox}>
+                  <TextInput
+                    placeholder={`Reply to ${user.username}...`}
+                    placeholderTextColor="rgba(255,255,255,0.6)"
+                    style={styles.replyInput}
+                    onFocus={pauseProgress}
+                    onBlur={resumeProgress}
+                  />
+                </View>
+                <TouchableOpacity style={styles.footerIcon}>
+                  <Heart color="#FFF" size={26} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.footerIcon}>
+                  <Send color="#FFF" size={26} />
+                </TouchableOpacity>
+              </View>
             </View>
-          ))}
-        </View>
-
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.userInfo}>
-            <Image source={{ uri: user.avatar }} style={styles.avatar} />
-            <View>
-              <Text style={styles.username}>{user.username}</Text>
-              <Text style={styles.timestamp}>{story.timestamp}</Text>
-            </View>
-          </View>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.closeBtn}>
-            <X color="#FFF" size={28} />
-          </TouchableOpacity>
-        </View>
-
-        {/* Tap areas for navigation */}
-        <View style={styles.contentArea}>
-          <Pressable 
-            style={styles.tapSide} 
-            onPress={prevStory}
-            onLongPress={pauseAnimation}
-            onPressOut={() => isPaused && resumeAnimation()}
-          />
-          <Pressable 
-            style={styles.tapSide} 
-            onPress={nextStory}
-            onLongPress={pauseAnimation}
-            onPressOut={() => isPaused && resumeAnimation()}
-          />
-        </View>
-
-        {/* Footer Reply Section */}
-        <View style={styles.footer}>
-          <View style={styles.replyInputContainer}>
-            <TextInput
-              placeholder="Send message"
-              placeholderTextColor="rgba(255,255,255,0.7)"
-              style={styles.replyInput}
-              onFocus={pauseAnimation}
-              onBlur={resumeAnimation}
-            />
-          </View>
-          <TouchableOpacity style={styles.footerIcon}>
-            <Heart color="#FFF" size={26} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.footerIcon}>
-            <Send color="#FFF" size={26} />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </KeyboardAvoidingView>
+          </Animated.View>
+        </GestureDetector>
+      </KeyboardAvoidingView>
+    </GestureHandlerRootView>
   );
 };
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
   container: {
     flex: 1,
     backgroundColor: '#000',
   },
   media: {
-    width: width,
-    height: height,
+    width,
+    height,
     position: 'absolute',
   },
   overlay: {
@@ -166,26 +249,26 @@ const styles = StyleSheet.create({
   progressContainer: {
     flexDirection: 'row',
     paddingHorizontal: 10,
-    height: 3,
+    gap: 4,
   },
-  progressBarBackground: {
+  progressTrack: {
     flex: 1,
     height: 3,
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    marginHorizontal: 2,
+    backgroundColor: 'rgba(255,255,255,0.35)',
     borderRadius: 2,
     overflow: 'hidden',
   },
-  progressBar: {
+  progressFill: {
     height: '100%',
     backgroundColor: '#FFF',
+    borderRadius: 2,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 15,
-    marginTop: 15,
+    marginTop: 12,
   },
   userInfo: {
     flexDirection: 'row',
@@ -195,7 +278,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    marginRight: 12,
+    marginRight: 10,
     borderWidth: 1.5,
     borderColor: '#FFF',
   },
@@ -203,21 +286,18 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontWeight: 'bold',
     fontSize: 15,
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
-    textShadowRadius: 10,
+    textShadowColor: 'rgba(0,0,0,0.6)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 6,
   },
   timestamp: {
-    color: 'rgba(255,255,255,0.8)',
+    color: 'rgba(255,255,255,0.75)',
     fontSize: 12,
-    textShadowColor: 'rgba(0, 0, 0, 0.75)',
-    textShadowOffset: {width: -1, height: 1},
-    textShadowRadius: 10,
   },
   closeBtn: {
-    padding: 5,
+    padding: 6,
   },
-  contentArea: {
+  tapArea: {
     flex: 1,
     flexDirection: 'row',
   },
@@ -229,23 +309,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 15,
     paddingBottom: Platform.OS === 'ios' ? 40 : 20,
-    backgroundColor: 'transparent',
   },
-  replyInputContainer: {
+  replyBox: {
     flex: 1,
-    height: 48,
-    borderRadius: 24,
+    height: 46,
+    borderRadius: 23,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.5)',
-    backgroundColor: 'rgba(0,0,0,0.2)',
-    paddingHorizontal: 20,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    paddingHorizontal: 18,
     justifyContent: 'center',
   },
   replyInput: {
     color: '#FFF',
-    fontSize: 15,
+    fontSize: 14,
   },
   footerIcon: {
-    marginLeft: 18,
+    marginLeft: 16,
   },
 });

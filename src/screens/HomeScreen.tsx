@@ -5,7 +5,7 @@ import { theme } from '../theme/theme';
 import { StoryRing } from '../components/StoryRing';
 import { PostCard } from '../components/PostCard';
 import { mockPosts, mockStories, mockUsers } from '../data/mockDatabase';
-import { Camera, Send } from 'lucide-react-native';
+import { Camera, PaperPlaneRight as Send } from 'phosphor-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const HomeHeader = () => {

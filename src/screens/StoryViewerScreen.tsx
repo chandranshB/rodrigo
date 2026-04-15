@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Image, StyleSheet, Dimensions, Text, TouchableOpacity, StatusBar, TextInput, KeyboardAvoidingView, Platform, Pressable } from 'react-native';
 import { theme } from '../theme/theme';
 import { mockUsers, mockStories } from '../data/mockDatabase';
-import { X, MoreVertical, Send, Heart } from 'lucide-react-native';
+import { X, DotsThreeVertical as MoreVertical, PaperPlaneRight as Send, Heart } from 'phosphor-react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing, runOnJS, cancelAnimation } from 'react-native-reanimated';
 
 const { width, height } = Dimensions.get('window');

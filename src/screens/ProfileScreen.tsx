@@ -5,7 +5,7 @@ import { theme } from '../theme/theme';
 import { mockUsers, mockPosts } from '../data/mockDatabase';
 import LinearGradient from 'react-native-linear-gradient';
 import { AuraBadge } from '../components/AuraBadge';
-import { Settings, Edit2, Grid, Bookmark, Tag } from 'lucide-react-native';
+import { Gear as Settings, PencilSimple as Edit2, GridFour as Grid, BookmarkSimple as Bookmark, Tag } from 'phosphor-react-native';
 
 const { width } = Dimensions.get('window');
 

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { theme } from '../theme/theme';
-import { MessageCircle, Share2, MoreHorizontal, ArrowBigUp, ArrowBigDown } from 'lucide-react-native';
+import { ChatCircle as MessageCircle, ShareNetwork as Share2, DotsThree as MoreHorizontal, ArrowFatUp as ArrowBigUp, ArrowFatDown as ArrowBigDown } from 'phosphor-react-native';
 import Animated, { useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
 import { CommentSheet } from './CommentSheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 interface PostCardProps {
   id: string;
@@ -130,18 +131,20 @@ export const PostCard: React.FC<PostCardProps> = ({
       {/* Comments Sheet Modal */}
       <Modal
         visible={showComments}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setShowComments(false)}
       >
-        <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalCloseArea} 
-            activeOpacity={1} 
-            onPress={() => setShowComments(false)} 
-          />
-          <CommentSheet targetId={id} onClose={() => setShowComments(false)} />
-        </View>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <View style={styles.modalOverlay}>
+            <TouchableOpacity 
+              style={styles.modalCloseArea} 
+              activeOpacity={1} 
+              onPress={() => setShowComments(false)} 
+            />
+            <CommentSheet targetId={id} onClose={() => setShowComments(false)} />
+          </View>
+        </GestureHandlerRootView>
       </Modal>
     </View>
   );

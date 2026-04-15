@@ -1,21 +1,20 @@
-import React, { useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Image, FlatList, TextInput, TouchableOpacity, Dimensions, Platform, Keyboard } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, Image, FlatList, TextInput, TouchableOpacity, Dimensions, Platform } from 'react-native';
 import { theme } from '../theme/theme';
 import { mockComments, mockUsers } from '../data/mockDatabase';
-import { Send, X, ArrowBigUp } from 'lucide-react-native';
+import { PaperPlaneRight as Send, X, ArrowFatUp as ArrowBigUp } from 'phosphor-react-native';
 import Animated, { 
   useAnimatedStyle, 
   withSpring, 
   useSharedValue, 
-  useAnimatedGestureHandler,
-  runOnJS,
   interpolate,
-  Extrapolate
+  Extrapolate,
+  runOnJS
 } from 'react-native-reanimated';
-import { PanGestureHandler, PanGestureHandlerGestureEvent } from 'react-native-gesture-handler';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const MAX_TRANSLATE_Y = -SCREEN_HEIGHT * 0.9;
+const MAX_TRANSLATE_Y = -SCREEN_HEIGHT * 0.85;
 const MIN_TRANSLATE_Y = -SCREEN_HEIGHT * 0.5;
 
 interface CommentSheetProps {
@@ -25,33 +24,32 @@ interface CommentSheetProps {
 
 export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose }) => {
   const translateY = useSharedValue(0);
-  const active = useSharedValue(false);
+  const contextY = useSharedValue(0);
   const filteredComments = mockComments.filter(c => c.targetId === targetId);
 
-  const scrollTo = useCallback((destination: number) => {
+  const scrollTo = (destination: number) => {
     'worklet';
-    active.value = destination !== 0;
-    translateY.value = withSpring(destination, { damping: 15 });
-  }, []);
+    translateY.value = withSpring(destination, { damping: 20, stiffness: 90 });
+  };
 
-  const gestureHandler = useAnimatedGestureHandler<PanGestureHandlerGestureEvent, { contextY: number }>({
-    onStart: (_, context) => {
-      context.contextY = translateY.value;
-    },
-    onActive: (event, context) => {
-      translateY.value = event.translationY + context.contextY;
+  const gesture = Gesture.Pan()
+    .onStart(() => {
+      contextY.value = translateY.value;
+    })
+    .onUpdate((event) => {
+      translateY.value = event.translationY + contextY.value;
       translateY.value = Math.max(translateY.value, MAX_TRANSLATE_Y);
-    },
-    onEnd: (event) => {
-      if (translateY.value > -SCREEN_HEIGHT / 3) {
+    })
+    .onEnd((event) => {
+      if (translateY.value > -SCREEN_HEIGHT / 3 || event.velocityY > 500) {
+        scrollTo(0);
         runOnJS(onClose)();
       } else if (translateY.value < -SCREEN_HEIGHT * 0.7) {
         scrollTo(MAX_TRANSLATE_Y);
       } else {
         scrollTo(MIN_TRANSLATE_Y);
       }
-    },
-  });
+    });
 
   useEffect(() => {
     scrollTo(MIN_TRANSLATE_Y);
@@ -61,7 +59,7 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
     const borderRadius = interpolate(
       translateY.value,
       [MAX_TRANSLATE_Y + 50, MAX_TRANSLATE_Y],
-      [25, 5],
+      [25, 10],
       Extrapolate.CLAMP
     );
 
@@ -71,24 +69,9 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
     };
   });
 
-  const rBackdropStyle = useAnimatedStyle(() => {
-    return {
-      opacity: interpolate(
-        translateY.value,
-        [0, MIN_TRANSLATE_Y],
-        [0, 1],
-        Extrapolate.CLAMP
-      ),
-    };
-  });
-
   return (
-    <>
-      <Animated.View 
-        pointerEvents="none"
-        style={[styles.backdrop, rBackdropStyle]} 
-      />
-      <PanGestureHandler onGestureEvent={gestureHandler}>
+    <View style={styles.sheetWrapper}>
+      <GestureDetector gesture={gesture}>
         <Animated.View style={[styles.container, rBottomSheetStyle]}>
           <View style={styles.handleContainer}>
             <View style={styles.handle} />
@@ -106,6 +89,7 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => {
               const user = mockUsers[item.userId];
+              if (!user) return null;
               return (
                 <View style={styles.commentItem}>
                   <Image source={{ uri: user.avatar }} style={styles.avatar} />
@@ -145,24 +129,22 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
             </TouchableOpacity>
           </View>
         </Animated.View>
-      </PanGestureHandler>
-    </>
+      </GestureDetector>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  sheetWrapper: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 100,
+  },
   container: {
     height: SCREEN_HEIGHT,
     width: '100%',
     backgroundColor: theme.colors.surface,
     position: 'absolute',
     top: SCREEN_HEIGHT,
-    zIndex: 100,
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    zIndex: 50,
   },
   handleContainer: {
     alignItems: 'center',
@@ -190,7 +172,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     padding: 20,
-    paddingBottom: 250, // Extra padding for input area
+    paddingBottom: 250,
   },
   commentItem: {
     flexDirection: 'row',

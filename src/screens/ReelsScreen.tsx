@@ -2,10 +2,10 @@ import React, { useRef, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, FlatList, Image, TouchableOpacity, StatusBar, Modal } from 'react-native';
 import { theme } from '../theme/theme';
 import { mockReels, mockUsers } from '../data/mockDatabase';
-import { Music, MessageCircle, Share2, MoreVertical, ArrowBigUp, ArrowBigDown, Zap } from 'lucide-react-native';
+import { MusicNotes as Music, ChatCircle as MessageCircle, ShareNetwork as Share2, DotsThreeVertical as MoreVertical, ArrowFatUp as ArrowBigUp, ArrowFatDown as ArrowBigDown, Lightning as Zap } from 'phosphor-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence, withDelay } from 'react-native-reanimated';
-import { TapGestureHandler, State } from 'react-native-gesture-handler';
+import { TapGestureHandler, State, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { CommentSheet } from '../components/CommentSheet';
 
 const { width, height: screenHeight } = Dimensions.get('window');
@@ -110,18 +110,20 @@ const ReelItem = ({ item, isVisible }: { item: any, isVisible: boolean }) => {
       {/* Comments Sheet Modal */}
       <Modal
         visible={showComments}
-        animationType="slide"
+        animationType="fade"
         transparent={true}
         onRequestClose={() => setShowComments(false)}
       >
-        <View style={styles.modalOverlay}>
-          <TouchableOpacity 
-            style={styles.modalCloseArea} 
-            activeOpacity={1} 
-            onPress={() => setShowComments(false)} 
-          />
-          <CommentSheet targetId={item.id} onClose={() => setShowComments(false)} />
-        </View>
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <View style={styles.modalOverlay}>
+            <TouchableOpacity 
+              style={styles.modalCloseArea} 
+              activeOpacity={1} 
+              onPress={() => setShowComments(false)} 
+            />
+            <CommentSheet targetId={item.id} onClose={() => setShowComments(false)} />
+          </View>
+        </GestureHandlerRootView>
       </Modal>
     </View>
   );
@@ -155,8 +157,7 @@ export const ReelsScreen: React.FC = () => {
         snapToInterval={screenHeight}
         snapToAlignment="start"
         decelerationRate="fast"
-        // Professional Scrolling Optimizations
-        disableIntervalMomentum={true} // Crucial for one-at-a-time feel
+        disableIntervalMomentum={true}
         windowSize={3}
         maxToRenderPerBatch={1}
         initialNumToRender={1}

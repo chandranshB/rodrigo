@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, StatusBar, Image, S
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { mockEvents, mockCommunities } from '../data/mockDatabase';
-import { Calendar, ChevronRight, Info, Zap, Users, TrendingUp } from 'lucide-react-native';
+import { Calendar, CaretRight as ChevronRight, Info, Lightning as Zap, Users, TrendUp as TrendingUp } from 'phosphor-react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 const ExploreHeader = () => (

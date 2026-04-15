@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { theme } from '../theme/theme';
-import { Zap } from 'lucide-react-native';
+import { Lightning as Zap } from 'phosphor-react-native';
 
 interface AuraBadgeProps {
   score: number;

@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { theme } from '../theme/theme';
-import { Home, Bell, PlusSquare, User, Search, PlayCircle } from 'lucide-react-native';
+import { House as Home, Bell, PlusSquare, User, MagnifyingGlass as Search, PlayCircle } from 'phosphor-react-native';
 
 // Import Screens
 import { HomeScreen } from '../screens/HomeScreen';
@@ -15,11 +15,11 @@ import { StoryViewerScreen } from '../screens/StoryViewerScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const HomeIcon = ({ color, size }: { color: string; size: number }) => <Home color={color} size={size} />;
-const UpdatesIcon = ({ color, size }: { color: string; size: number }) => <Bell color={color} size={size} />;
-const ReelsIcon = ({ color, size }: { color: string; size: number }) => <PlayCircle color={color} size={size} />;
-const SearchIcon = ({ color, size }: { color: string; size: number }) => <Search color={color} size={size} />;
-const ProfileIcon = ({ color, size }: { color: string; size: number }) => <User color={color} size={size} />;
+const HomeIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Home color={color} size={size} weight={focused ? "fill" : "duotone"} />;
+const UpdatesIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Bell color={color} size={size} weight={focused ? "fill" : "duotone"} />;
+const ReelsIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <PlayCircle color={color} size={size} weight={focused ? "fill" : "duotone"} />;
+const SearchIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Search color={color} size={size} weight={focused ? "fill" : "duotone"} />;
+const ProfileIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <User color={color} size={size} weight={focused ? "fill" : "duotone"} />;
 
 const TabNavigator = () => {
   return (

@@ -46,13 +46,14 @@ export const PostCard: React.FC<PostCardProps> = ({
   }));
 
   const handleVote = (type: 'up' | 'down') => {
+    const springConfig = { damping: 15, stiffness: 300 };
     if (type === 'up') {
-      upvoteScale.value = withSpring(1.4, {}, () => {
-        upvoteScale.value = withSpring(1);
+      upvoteScale.value = withSpring(1.4, springConfig, () => {
+        upvoteScale.value = withSpring(1, springConfig);
       });
     } else {
-      downvoteScale.value = withSpring(1.4, {}, () => {
-        downvoteScale.value = withSpring(1);
+      downvoteScale.value = withSpring(1.4, springConfig, () => {
+        downvoteScale.value = withSpring(1, springConfig);
       });
     }
   };

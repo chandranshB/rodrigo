@@ -56,7 +56,7 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
 
   const scrollTo = useCallback((destination: number) => {
     'worklet';
-    translateY.value = withSpring(destination, { damping: 20, stiffness: 90 });
+    translateY.value = withSpring(destination, { damping: 22, stiffness: 280, mass: 0.5 });
   }, [translateY]);
 
   const gesture = Gesture.Pan()
@@ -69,7 +69,7 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
     })
     .onEnd((event) => {
       if (translateY.value > -SCREEN_HEIGHT / 3 || event.velocityY > 500) {
-        translateY.value = withSpring(0, { damping: 20, stiffness: 90 }, (finished) => {
+        translateY.value = withSpring(0, { damping: 22, stiffness: 280, mass: 0.5 }, (finished) => {
           if (finished) runOnJS(onClose)();
         });
       } else if (translateY.value < -SCREEN_HEIGHT * 0.7) {
@@ -80,11 +80,7 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
     });
 
   useEffect(() => {
-    // Small delay to ensure the modal/view is fully mounted before animating up
-    const timeout = setTimeout(() => {
-      scrollTo(MIN_TRANSLATE_Y);
-    }, 50);
-    return () => clearTimeout(timeout);
+    scrollTo(MIN_TRANSLATE_Y);
   }, [scrollTo]);
 
   const rBottomSheetStyle = useAnimatedStyle(() => {

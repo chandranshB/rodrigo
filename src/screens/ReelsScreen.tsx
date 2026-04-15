@@ -30,18 +30,20 @@ const ReelItem = React.memo(({ item, _isVisible }: { item: any, _isVisible: bool
   }));
 
   const handleUpvote = () => {
+    const springConfig = { damping: 15, stiffness: 300 };
     upvoteScale.value = withSequence(
-      withSpring(1.5),
-      withSpring(1)
+      withSpring(1.5, springConfig),
+      withSpring(1, springConfig)
     );
   };
 
   const onDoubleTap = (event: any) => {
     if (event.nativeEvent.state === State.ACTIVE) {
       handleUpvote();
+      const springConfig = { damping: 20, stiffness: 300 };
       heartScale.value = withSequence(
-        withSpring(1.5),
-        withDelay(500, withSpring(0))
+        withSpring(1.5, springConfig),
+        withDelay(500, withSpring(0, springConfig))
       );
       heartOpacity.value = withSequence(
         withSpring(1),

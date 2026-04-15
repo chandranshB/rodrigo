@@ -54,6 +54,6 @@ export interface UpdateEvent {
   organizer: string;
   isOfficial: boolean;
   date: string;
-  type: 'fest' | 'workshop' | 'competition' | 'announcement';
+  type: 'fest' | 'workshop' | 'competition' | 'announcement' | 'alert';
   auraBonus?: number;
 }

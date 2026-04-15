@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View,
   Image,
@@ -50,30 +50,44 @@ const StoryCard: React.FC<StoryCardProps> = ({ userId, storyIndex, isActive, onN
   const userStories = mockStories.filter(s => s.userId === userId);
   const story = userStories[storyIndex] ?? userStories[0];
   const progress = useSharedValue(0);
-  const [isPaused, setIsPaused] = useState(false);
+  const isPausedRef = useRef(false);
+  const onNextRef = useRef(onNext);
+  const [, forceRender] = useState(0);
 
-  const startProgress = useCallback(() => {
-    const remaining = STORY_DURATION * (1 - progress.value);
+  // Keep ref in sync so the worklet callback always calls the latest onNext
+  useEffect(() => { onNextRef.current = onNext; }, [onNext]);
+
+  const startProgress = useCallback((fromValue = 0) => {
+    progress.value = fromValue;
+    const remaining = STORY_DURATION * (1 - fromValue);
     progress.value = withTiming(1, { duration: remaining, easing: Easing.linear }, (done) => {
-      if (done) runOnJS(onNext)();
+      if (done) runOnJS(onNextRef.current)();
     });
-  }, [progress, onNext]);
+  }, [progress]);
 
   const pauseProgress = useCallback(() => {
     cancelAnimation(progress);
-    setIsPaused(true);
+    isPausedRef.current = true;
+    forceRender(n => n + 1);
   }, [progress]);
 
   const resumeProgress = useCallback(() => {
-    setIsPaused(false);
-    startProgress();
-  }, [startProgress]);
+    isPausedRef.current = false;
+    forceRender(n => n + 1);
+    startProgress(progress.value);
+  }, [progress, startProgress]);
 
+  // Restart timer whenever story or active state changes
   useEffect(() => {
-    if (!isActive) { cancelAnimation(progress); return; }
-    progress.value = 0;
-    startProgress();
+    if (!isActive) {
+      cancelAnimation(progress);
+      progress.value = 0;
+      return;
+    }
+    isPausedRef.current = false;
+    startProgress(0);
     return () => cancelAnimation(progress);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storyIndex, isActive]);
 
   const progressStyle = useAnimatedStyle(() => ({
@@ -117,13 +131,13 @@ const StoryCard: React.FC<StoryCardProps> = ({ userId, storyIndex, isActive, onN
             style={card.tapSide}
             onPress={onPrev}
             onLongPress={pauseProgress}
-            onPressOut={() => isPaused && resumeProgress()}
+            onPressOut={() => isPausedRef.current && resumeProgress()}
           />
           <Pressable
             style={card.tapSide}
             onPress={onNext}
             onLongPress={pauseProgress}
-            onPressOut={() => isPaused && resumeProgress()}
+            onPressOut={() => isPausedRef.current && resumeProgress()}
           />
         </View>
 

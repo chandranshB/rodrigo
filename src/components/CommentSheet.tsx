@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Image, FlatList, TextInput, TouchableOpacity, Dimensions, Platform } from 'react-native';
 import { theme } from '../theme/theme';
 import { mockComments, mockUsers } from '../data/mockDatabase';
@@ -27,10 +27,10 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
   const contextY = useSharedValue(0);
   const filteredComments = mockComments.filter(c => c.targetId === targetId);
 
-  const scrollTo = (destination: number) => {
+  const scrollTo = useCallback((destination: number) => {
     'worklet';
     translateY.value = withSpring(destination, { damping: 20, stiffness: 90 });
-  };
+  }, [translateY]);
 
   const gesture = Gesture.Pan()
     .onStart(() => {
@@ -42,8 +42,9 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
     })
     .onEnd((event) => {
       if (translateY.value > -SCREEN_HEIGHT / 3 || event.velocityY > 500) {
-        scrollTo(0);
-        runOnJS(onClose)();
+        translateY.value = withSpring(0, { damping: 20, stiffness: 90 }, (finished) => {
+          if (finished) runOnJS(onClose)();
+        });
       } else if (translateY.value < -SCREEN_HEIGHT * 0.7) {
         scrollTo(MAX_TRANSLATE_Y);
       } else {
@@ -52,8 +53,12 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
     });
 
   useEffect(() => {
-    scrollTo(MIN_TRANSLATE_Y);
-  }, []);
+    // Small delay to ensure the modal/view is fully mounted before animating up
+    const timeout = setTimeout(() => {
+      scrollTo(MIN_TRANSLATE_Y);
+    }, 50);
+    return () => clearTimeout(timeout);
+  }, [scrollTo]);
 
   const rBottomSheetStyle = useAnimatedStyle(() => {
     const borderRadius = interpolate(
@@ -69,8 +74,28 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
     };
   });
 
+  const rBackdropStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(
+        translateY.value,
+        [0, MIN_TRANSLATE_Y],
+        [0, 1],
+        Extrapolate.CLAMP
+      ),
+    };
+  });
+
   return (
     <View style={styles.sheetWrapper}>
+      {/* Backdrop */}
+      <TouchableOpacity 
+        activeOpacity={1} 
+        onPress={onClose} 
+        style={StyleSheet.absoluteFill}
+      >
+        <Animated.View style={[styles.backdrop, rBackdropStyle]} />
+      </TouchableOpacity>
+
       <GestureDetector gesture={gesture}>
         <Animated.View style={[styles.container, rBottomSheetStyle]}>
           <View style={styles.handleContainer}>
@@ -79,7 +104,7 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
 
           <View style={styles.headerTitleRow}>
             <Text style={styles.headerTitle}>Comments</Text>
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
               <X size={20} color={theme.colors.text.primary} />
             </TouchableOpacity>
           </View>
@@ -136,8 +161,12 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
 
 const styles = StyleSheet.create({
   sheetWrapper: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 100,
+    ...StyleSheet.absoluteFill as any,
+    justifyContent: 'flex-end',
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFill as any,
+    backgroundColor: 'rgba(0,0,0,0.7)',
   },
   container: {
     height: SCREEN_HEIGHT,
@@ -169,6 +198,9 @@ const styles = StyleSheet.create({
     color: theme.colors.text.primary,
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  closeBtn: {
+    padding: 4,
   },
   listContent: {
     padding: 20,

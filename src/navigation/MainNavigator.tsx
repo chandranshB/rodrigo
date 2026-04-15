@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { theme } from '../theme/theme';
-import { House as Home, Bell, PlusSquare, User, MagnifyingGlass as Search, PlayCircle } from 'phosphor-react-native';
+import { House as Home, Bell, User, MagnifyingGlass as Search, PlayCircle } from 'phosphor-react-native';
 
 // Import Screens
 import { HomeScreen } from '../screens/HomeScreen';
@@ -21,7 +21,10 @@ const ReelsIcon = ({ color, size, focused }: { color: string; size: number, focu
 const SearchIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Search color={color} size={size} weight={focused ? "fill" : "duotone"} />;
 const ProfileIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <User color={color} size={size} weight={focused ? "fill" : "duotone"} />;
 
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 const TabNavigator = () => {
+  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
       screenOptions={{
@@ -29,8 +32,9 @@ const TabNavigator = () => {
         tabBarStyle: {
           backgroundColor: theme.colors.background,
           borderTopColor: theme.colors.border,
-          height: 60,
-          paddingBottom: 8,
+          height: 60 + insets.bottom,
+          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
+          paddingTop: 8,
           position: 'absolute',
           borderTopWidth: 0,
           elevation: 0,

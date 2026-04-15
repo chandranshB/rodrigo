@@ -15,7 +15,7 @@ export const StoryRing: React.FC<StoryRingProps> = ({ avatar, username, hasUnrea
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={styles.ringWrapper}>
         <LinearGradient
-          colors={hasUnread ? theme.colors.gradient.story : ['#333', '#333']}
+          colors={(hasUnread ? theme.colors.gradient.story : ['#333', '#333']) as string[]}
           style={styles.gradient}
         >
           <View style={styles.avatarWrapper}>

@@ -50,4 +50,4 @@ export const theme = {
     lg: 20,
     full: 999,
   },
-};
+} as const;

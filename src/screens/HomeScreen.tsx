@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { StoryRing } from '../components/StoryRing';
 import { PostCard } from '../components/PostCard';
@@ -40,6 +40,7 @@ const HomeHeader = () => {
 };
 
 export const HomeScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.background} />
@@ -75,7 +76,7 @@ export const HomeScreen: React.FC = () => {
             </View>
           )}
 
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: 80 + insets.bottom }]}
         />
       </View>
     </SafeAreaView>

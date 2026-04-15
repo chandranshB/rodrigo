@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, StatusBar, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { mockUsers, mockPosts } from '../data/mockDatabase';
 import LinearGradient from 'react-native-linear-gradient';
@@ -20,12 +20,13 @@ const THEMES = [
 export const ProfileScreen: React.FC = () => {
   const user = mockUsers.u1;
   const [currentTheme, setCurrentTheme] = useState(user.profileTheme || THEMES[0]);
+  const insets = useSafeAreaInsets();
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={currentTheme[0]} />
       <View style={styles.container}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 80 + insets.bottom }}>
           {/* Profile Header with Gradient */}
           <LinearGradient colors={currentTheme} style={styles.headerGradient}>
             <View style={styles.headerTopActions}>

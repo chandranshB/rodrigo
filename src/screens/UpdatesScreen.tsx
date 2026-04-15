@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, StatusBar, Image, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { mockEvents, mockCommunities } from '../data/mockDatabase';
 import { Calendar, CaretRight as ChevronRight, Info, Lightning as Zap, Users, TrendUp as TrendingUp } from 'phosphor-react-native';
@@ -66,6 +66,7 @@ const getTypeColor = (type: string) => {
 };
 
 export const UpdatesScreen: React.FC = () => {
+  const insets = useSafeAreaInsets();
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.background} />
@@ -94,7 +95,7 @@ export const UpdatesScreen: React.FC = () => {
                   <Text style={styles.eventTitle}>{item.title}</Text>
                   {item.auraBonus && (
                     <View style={styles.auraBonus}>
-                      <Zap size={10} color={theme.colors.accent} fill={theme.colors.accent} />
+                      <Zap size={10} color={theme.colors.accent} weight="fill" />
                       <Text style={styles.auraBonusText}>+{item.auraBonus}</Text>
                     </View>
                   )}
@@ -116,7 +117,7 @@ export const UpdatesScreen: React.FC = () => {
               <ChevronRight size={20} color={theme.colors.text.muted} />
             </TouchableOpacity>
           )}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={[styles.listContent, { paddingBottom: 80 + insets.bottom }]}
         />
       </View>
     </SafeAreaView>

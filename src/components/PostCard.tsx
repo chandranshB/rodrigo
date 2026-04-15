@@ -90,7 +90,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 <ArrowBigUp
                   size={24}
                   color={userVoted === 'up' ? theme.colors.accent : theme.colors.text.primary}
-                  fill={userVoted === 'up' ? theme.colors.accent : 'transparent'}
+                  weight={userVoted === 'up' ? "fill" : "regular"}
                 />
               </TouchableOpacity>
             </Animated.View>
@@ -102,7 +102,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 <ArrowBigDown
                   size={24}
                   color={userVoted === 'down' ? '#FF4500' : theme.colors.text.primary}
-                  fill={userVoted === 'down' ? '#FF4500' : 'transparent'}
+                  weight={userVoted === 'down' ? "fill" : "regular"}
                 />
               </TouchableOpacity>
             </Animated.View>
@@ -135,7 +135,7 @@ export const PostCard: React.FC<PostCardProps> = ({
         transparent={true}
         onRequestClose={() => setShowComments(false)}
       >
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={styles.flex1}>
           <View style={styles.modalOverlay}>
             <TouchableOpacity 
               style={styles.modalCloseArea} 
@@ -151,6 +151,9 @@ export const PostCard: React.FC<PostCardProps> = ({
 };
 
 const styles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+  },
   container: {
     backgroundColor: theme.colors.surface,
     marginBottom: theme.spacing.md,

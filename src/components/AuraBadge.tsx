@@ -13,7 +13,7 @@ export const AuraBadge: React.FC<AuraBadgeProps> = ({ score, showIcon = true }) 
 
   return (
     <View style={styles.container}>
-      {showIcon && <Zap size={14} color={theme.colors.accent} fill={theme.colors.accent} />}
+      {showIcon && <Zap size={14} color={theme.colors.accent} weight="fill" />}
       <Text style={styles.text}>{formattedScore} Aura</Text>
     </View>
   );

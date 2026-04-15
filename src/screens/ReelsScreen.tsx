@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, Dimensions, FlatList, Image, TouchableOpacity, StatusBar, Modal } from 'react-native';
 import { theme } from '../theme/theme';
 import { mockReels, mockUsers } from '../data/mockDatabase';
@@ -10,7 +10,7 @@ import { CommentSheet } from '../components/CommentSheet';
 
 const { width, height: screenHeight } = Dimensions.get('window');
 
-const ReelItem = ({ item, isVisible }: { item: any, isVisible: boolean }) => {
+const ReelItem = React.memo(({ item, _isVisible }: { item: any, _isVisible: boolean }) => {
   const user = mockUsers[item.userId];
   const insets = useSafeAreaInsets();
   const [showComments, setShowComments] = useState(false);
@@ -57,35 +57,35 @@ const ReelItem = ({ item, isVisible }: { item: any, isVisible: boolean }) => {
           <Image source={{ uri: item.mediaUrl }} style={styles.media} resizeMode="cover" />
           
           {/* Double Tap Heart Overlay */}
-          <Animated.View style={[styles.heartOverlay, heartOverlayStyle]}>
-            <Zap size={80} color={theme.colors.accent} fill={theme.colors.accent} />
+          <Animated.View style={[styles.heartOverlay, heartOverlayStyle]} pointerEvents="none">
+            <Zap size={80} color={theme.colors.accent} weight="fill" />
           </Animated.View>
 
           {/* Overlay Content */}
-          <View style={[styles.overlay, { paddingBottom: 60 + insets.bottom }]}>
-            <View style={styles.rightActions}>
+          <View style={[styles.overlay, { paddingBottom: 75 + insets.bottom }]} pointerEvents="box-none">
+            <View style={[styles.rightActions, { bottom: 90 + insets.bottom }]} pointerEvents="box-none">
               <Animated.View style={upvoteStyle}>
-                <TouchableOpacity style={styles.actionItem} onPress={handleUpvote}>
-                  <ArrowBigUp size={36} color={theme.colors.accent} fill={theme.colors.accent} />
+                <TouchableOpacity style={styles.actionItem} onPress={handleUpvote} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} activeOpacity={0.7}>
+                  <ArrowBigUp size={32} color={theme.colors.accent} weight="fill" />
                   <Text style={styles.actionText}>{item.auraCount}</Text>
                 </TouchableOpacity>
               </Animated.View>
 
-              <TouchableOpacity style={styles.actionItem}>
-                <ArrowBigDown size={36} color="#FFF" />
+              <TouchableOpacity style={styles.actionItem} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} activeOpacity={0.7}>
+                <ArrowBigDown size={32} color="#FFF" weight="duotone" />
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.actionItem} onPress={() => setShowComments(true)}>
-                <MessageCircle size={32} color="#FFF" />
+              <TouchableOpacity style={styles.actionItem} onPress={() => setShowComments(true)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} activeOpacity={0.7}>
+                <MessageCircle size={32} color="#FFF" weight="duotone" />
                 <Text style={styles.actionText}>{item.commentsCount}</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.actionItem}>
-                <Share2 size={30} color="#FFF" />
+              <TouchableOpacity style={styles.actionItem} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} activeOpacity={0.7}>
+                <Share2 size={32} color="#FFF" weight="duotone" />
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.actionItem}>
-                <MoreVertical size={24} color="#FFF" />
+              <TouchableOpacity style={styles.actionItem} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} activeOpacity={0.7}>
+                <MoreVertical size={28} color="#FFF" weight="bold" />
               </TouchableOpacity>
             </View>
 
@@ -114,7 +114,7 @@ const ReelItem = ({ item, isVisible }: { item: any, isVisible: boolean }) => {
         transparent={true}
         onRequestClose={() => setShowComments(false)}
       >
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={styles.flex1}>
           <View style={styles.modalOverlay}>
             <TouchableOpacity 
               style={styles.modalCloseArea} 
@@ -127,31 +127,44 @@ const ReelItem = ({ item, isVisible }: { item: any, isVisible: boolean }) => {
       </Modal>
     </View>
   );
-};
+});
 
 export const ReelsScreen: React.FC = () => {
-  const [viewableItems, setViewableItems] = useState<any>([]);
+  const [activeItemId, setActiveItemId] = useState<string | null>(null);
   
   const onViewableItemsChanged = useRef(({ viewableItems: vs }: any) => {
-    setViewableItems(vs);
+    if (vs.length > 0) {
+      setActiveItemId(vs[0].item.id);
+    }
   }).current;
 
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 50
   }).current;
 
+  const keyExtractor = useCallback((item: any) => item.id, []);
+
+  const getItemLayout = useCallback((data: any, index: number) => ({
+    length: screenHeight,
+    offset: screenHeight * index,
+    index,
+  }), []);
+
+  const renderItem = useCallback(({ item }: any) => (
+    <ReelItem 
+      item={item} 
+      _isVisible={activeItemId === item.id} 
+    />
+  ), [activeItemId]);
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <FlatList
         data={mockReels}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item, index }) => (
-          <ReelItem 
-            item={item} 
-            isVisible={viewableItems.some((v: any) => v.index === index)} 
-          />
-        )}
+        keyExtractor={keyExtractor}
+        renderItem={renderItem}
+        getItemLayout={getItemLayout}
         pagingEnabled
         showsVerticalScrollIndicator={false}
         snapToInterval={screenHeight}
@@ -174,6 +187,9 @@ export const ReelsScreen: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
+  flex1: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: '#000',
@@ -194,7 +210,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   overlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill as any,
     backgroundColor: 'rgba(0,0,0,0.15)',
     justifyContent: 'flex-end',
   },

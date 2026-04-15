@@ -7,7 +7,8 @@ import { House as Home, Bell, User, MagnifyingGlass as Search, PlayCircle } from
 
 // Import Screens
 import { HomeScreen } from '../screens/HomeScreen';
-import { UpdatesScreen } from '../screens/ExploreScreen';
+import { ExploreScreen } from '../screens/ExploreScreen';
+import { UpdatesScreen } from '../screens/UpdatesScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { ReelsScreen } from '../screens/ReelsScreen';
 import { StoryViewerScreen } from '../screens/StoryViewerScreen';
@@ -52,7 +53,7 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="Explore"
-        component={UpdatesScreen}
+        component={ExploreScreen}
         options={{
           tabBarIcon: SearchIcon,
         }}

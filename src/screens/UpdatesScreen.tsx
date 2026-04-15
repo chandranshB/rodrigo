@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, StatusBar } from 'r
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { mockEvents } from '../data/mockDatabase';
-import { Megaphone, CalendarBlank, CaretRight, Clock, ShieldCheck, PushPin, WarningCircle, Trophy, Sparkle } from 'phosphor-react-native';
+import { CalendarBlank, Clock, PushPin, WarningCircle, Trophy, Sparkle } from 'phosphor-react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 const getUpdateConfig = (type: string) => {
@@ -15,23 +15,10 @@ const getUpdateConfig = (type: string) => {
   }
 };
 
-const OfficialHeader = () => (
-  <View style={styles.listHeader}>
-    <LinearGradient
-      colors={['rgba(108, 99, 255, 0.25)', 'rgba(63, 55, 201, 0.05)']}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.noticeBanner}
-    >
-      <View style={styles.bannerIconWrapper}>
-        <ShieldCheck size={28} color={theme.colors.primary} weight="fill" />
-      </View>
-      <View style={styles.bannerTextContent}>
-        <Text style={styles.noticeBannerText}>Verified Administration</Text>
-        <Text style={styles.noticeBannerSub}>Authorized communications channel.</Text>
-      </View>
-    </LinearGradient>
-    <Text style={styles.sectionTitle}>Latest Bulletins</Text>
+const Header = () => (
+  <View style={styles.headerContainer}>
+    <Text style={styles.mainTitle}>Chronicle</Text>
+    <Text style={styles.subTitle}>Official administration logs.</Text>
   </View>
 );
 
@@ -43,67 +30,73 @@ export const UpdatesScreen: React.FC = () => {
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <StatusBar barStyle="light-content" backgroundColor={theme.colors.background} />
       <View style={styles.container}>
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.headerTitle}>Updates</Text>
-            <Text style={styles.headerSubtitle}>Official campus news</Text>
-          </View>
-          <View style={styles.headerIconContainer}>
-            <Megaphone color={theme.colors.primary} size={28} weight="duotone" />
-          </View>
-        </View>
-
         <FlatList
           data={officialNotices}
           keyExtractor={(item) => item.id}
           showsVerticalScrollIndicator={false}
-          ListHeaderComponent={OfficialHeader}
-          renderItem={({ item }) => {
+          ListHeaderComponent={Header}
+          contentContainerStyle={[styles.listContent, { paddingBottom: 80 + insets.bottom }]}
+          renderItem={({ item, index }) => {
             const config = getUpdateConfig(item.type);
             const IconComponent = config.icon;
+            const isLast = index === officialNotices.length - 1;
             
             return (
-              <TouchableOpacity style={styles.noticeCard} activeOpacity={0.75}>
-                <View style={[styles.typeIndicator, { backgroundColor: config.color }]} />
-                <View style={styles.cardContent}>
-                  
-                  <View style={styles.cardHeader}>
-                    <View style={styles.headerLeftTags}>
-                      <View style={[styles.iconWrapper, { backgroundColor: config.bg }]}>
-                        <IconComponent size={16} color={config.color} weight="fill" />
-                      </View>
-                      <View style={styles.tagWrapper}>
-                         <Text style={[styles.tagText, { color: config.color }]}>{item.type.toUpperCase()}</Text>
-                      </View>
-                    </View>
-                    
-                    {item.auraBonus && (
-                      <View style={styles.auraBonus}>
-                        <Sparkle size={12} color="#00D09C" weight="fill" />
-                        <Text style={styles.auraBonusText}>+{item.auraBonus} Aura</Text>
-                      </View>
-                    )}
+              <View style={styles.timelineRow}>
+                {/* Timeline Guide (Left Side) */}
+                <View style={styles.timelineGuide}>
+                  <View style={[styles.timelineNode, { borderColor: config.color, shadowColor: config.color }]}>
+                    <View style={[styles.timelineNodeInner, { backgroundColor: config.color }]} />
                   </View>
-
-                  <Text style={styles.noticeTitle}>{item.title}</Text>
-                  <Text style={styles.noticeDescription} numberOfLines={3}>{item.description}</Text>
-                  
-                  <View style={styles.noticeFooter}>
-                    <View style={styles.footerItem}>
-                      <Clock size={14} color={theme.colors.text.muted} weight="bold" />
-                      <Text style={styles.footerText}>{item.date}</Text>
-                    </View>
-                    <View style={styles.footerItem}>
-                      <CalendarBlank size={14} color={theme.colors.text.muted} weight="bold" />
-                      <Text style={styles.footerText}>{item.organizer}</Text>
-                    </View>
-                  </View>
-
+                  {!isLast && <View style={[styles.timelineLine, { borderColor: 'rgba(255,255,255,0.1)' }]} />}
                 </View>
-              </TouchableOpacity>
+
+                {/* Timeline Content Card (Right Side) */}
+                <View style={styles.timelineContent}>
+                  <Text style={styles.dateText}>{item.date}</Text>
+                  
+                  <TouchableOpacity style={styles.glassCard} activeOpacity={0.75}>
+                    <LinearGradient
+                      colors={['rgba(255,255,255,0.03)', 'rgba(255,255,255,0.01)']}
+                      style={styles.cardGradient}
+                    >
+                      <View style={styles.cardHeader}>
+                        <View style={styles.headerLeftTags}>
+                          <View style={[styles.iconWrapper, { backgroundColor: config.bg }]}>
+                            <IconComponent size={14} color={config.color} weight="fill" />
+                          </View>
+                          <Text style={[styles.tagText, { color: config.color }]}>
+                            {item.type.toUpperCase()}
+                          </Text>
+                        </View>
+                        
+                        {item.auraBonus && (
+                          <View style={styles.auraBonus}>
+                            <Sparkle size={10} color="#00D09C" weight="fill" />
+                            <Text style={styles.auraBonusText}>+{item.auraBonus}</Text>
+                          </View>
+                        )}
+                      </View>
+
+                      <Text style={styles.noticeTitle}>{item.title}</Text>
+                      <Text style={styles.noticeDescription} numberOfLines={3}>{item.description}</Text>
+                      
+                      <View style={styles.noticeFooter}>
+                        <View style={styles.footerItem}>
+                          <CalendarBlank size={12} color="rgba(255,255,255,0.4)" weight="bold" />
+                          <Text style={styles.footerText}>{item.organizer}</Text>
+                        </View>
+                        <View style={styles.footerItem}>
+                           <Clock size={12} color="rgba(255,255,255,0.4)" weight="bold" />
+                           <Text style={styles.footerText}>Just now</Text>
+                        </View>
+                      </View>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </View>
             );
           }}
-          contentContainerStyle={[styles.listContent, { paddingBottom: 80 + insets.bottom }]}
         />
       </View>
     </SafeAreaView>
@@ -113,91 +106,85 @@ export const UpdatesScreen: React.FC = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: '#09090B', // Even darker for contrast
   },
   container: {
     flex: 1,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+  listContent: {
+    paddingTop: 20,
     paddingHorizontal: 20,
-    paddingVertical: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255,255,255,0.05)',
   },
-  headerTitle: {
+  headerContainer: {
+    marginBottom: 40,
+    paddingLeft: 10,
+  },
+  mainTitle: {
     color: '#FFF',
-    fontSize: 28,
-    fontWeight: theme.typography.weight.bold,
+    fontSize: 34,
+    fontWeight: '900',
+    letterSpacing: 1,
   },
-  headerSubtitle: {
-    color: theme.colors.text.muted,
+  subTitle: {
+    color: 'rgba(255,255,255,0.5)',
     fontSize: 14,
     marginTop: 4,
+    letterSpacing: 0.5,
   },
-  headerIconContainer: {
-    backgroundColor: 'rgba(108, 99, 255, 0.1)',
-    padding: 10,
-    borderRadius: 20,
-  },
-  listHeader: {
-    padding: 20,
-    paddingBottom: 10,
-  },
-  noticeBanner: {
+  timelineRow: {
     flexDirection: 'row',
+  },
+  timelineGuide: {
+    width: 30,
     alignItems: 'center',
-    padding: 20,
-    borderRadius: 16,
-    marginBottom: 24,
-    borderWidth: 1,
-    borderColor: 'rgba(108, 99, 255, 0.3)',
   },
-  bannerIconWrapper: {
-    backgroundColor: 'rgba(108, 99, 255, 0.15)',
-    padding: 10,
-    borderRadius: 14,
-    marginRight: 16,
+  timelineNode: {
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 2,
+    backgroundColor: '#09090B',
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 8,
+    zIndex: 2,
+    marginTop: 2,
   },
-  bannerTextContent: {
+  timelineNodeInner: {
+    width: 4,
+    height: 4,
+    borderRadius: 2,
+  },
+  timelineLine: {
+    width: 1,
     flex: 1,
+    borderStyle: 'dashed',
+    borderWidth: 1,
+    marginVertical: 4,
+    zIndex: 1,
   },
-  noticeBannerText: {
-    color: theme.colors.primary,
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 4,
+  timelineContent: {
+    flex: 1,
+    paddingLeft: 16,
+    paddingBottom: 30,
   },
-  noticeBannerSub: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 12,
-  },
-  sectionTitle: {
-    color: theme.colors.text.secondary,
-    fontSize: 13,
+  dateText: {
+    color: 'rgba(255,255,255,0.4)',
+    fontSize: 11,
     fontWeight: 'bold',
     textTransform: 'uppercase',
-    letterSpacing: 1.5,
-    marginBottom: 10,
+    letterSpacing: 1,
+    marginBottom: 8,
   },
-  noticeCard: {
-    backgroundColor: theme.colors.surface,
-    marginHorizontal: 20,
-    marginBottom: 16,
+  glassCard: {
     borderRadius: 16,
-    flexDirection: 'row',
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
   },
-  typeIndicator: {
-    width: 4,
-    height: '100%',
-  },
-  cardContent: {
-    flex: 1,
+  cardGradient: {
     padding: 16,
   },
   cardHeader: {
@@ -215,60 +202,57 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginRight: 8,
   },
-  tagWrapper: {},
   tagText: {
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 'bold',
-    letterSpacing: 0.5,
+    letterSpacing: 1,
   },
   auraBonus: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 208, 156, 0.15)',
+    backgroundColor: 'rgba(0, 208, 156, 0.1)',
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 20,
-    borderWidth: 1,
+    borderRadius: 12,
+    borderWidth: 0.5,
     borderColor: 'rgba(0, 208, 156, 0.3)',
   },
   auraBonusText: {
     color: '#00D09C',
-    fontSize: 11,
+    fontSize: 10,
     fontWeight: 'bold',
     marginLeft: 4,
   },
   noticeTitle: {
     color: '#FFF',
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: 'bold',
     marginBottom: 8,
     lineHeight: 24,
+    letterSpacing: 0.3,
   },
   noticeDescription: {
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 14,
-    lineHeight: 22,
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 13,
+    lineHeight: 20,
     marginBottom: 16,
   },
   noticeFooter: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 16,
+    paddingTop: 14,
     borderTopWidth: 1,
     borderTopColor: 'rgba(255,255,255,0.05)',
   },
   footerItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 20,
+    marginRight: 16,
   },
   footerText: {
-    color: 'rgba(255,255,255,0.6)',
-    fontSize: 12,
+    color: 'rgba(255,255,255,0.4)',
+    fontSize: 11,
     marginLeft: 6,
-    fontWeight: '500',
-  },
-  listContent: {
-    paddingTop: 0,
+    fontWeight: '600',
   },
 });

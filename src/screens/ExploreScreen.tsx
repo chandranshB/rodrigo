@@ -65,7 +65,7 @@ const getTypeColor = (type: string) => {
   }
 };
 
-export const UpdatesScreen: React.FC = () => {
+export const ExploreScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>

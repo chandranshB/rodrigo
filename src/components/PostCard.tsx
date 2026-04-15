@@ -131,7 +131,7 @@ export const PostCard: React.FC<PostCardProps> = ({
       {/* Comments Sheet Modal */}
       <Modal
         visible={showComments}
-        animationType="fade"
+        animationType="none"
         transparent={true}
         onRequestClose={() => setShowComments(false)}
       >

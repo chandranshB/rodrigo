@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity, StatusBar, Image, S
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { mockEvents, mockCommunities } from '../data/mockDatabase';
-import { Calendar, CaretRight as ChevronRight, Info, Lightning as Zap, Users, TrendUp as TrendingUp } from 'phosphor-react-native';
+import { Calendar, ChevronRight, Info, Lightning as Zap, Users, TrendingUp } from 'phosphor-react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 const ExploreHeader = () => (
@@ -95,7 +95,7 @@ export const UpdatesScreen: React.FC = () => {
                   <Text style={styles.eventTitle}>{item.title}</Text>
                   {item.auraBonus && (
                     <View style={styles.auraBonus}>
-                      <Zap size={10} color={theme.colors.accent} weight="fill" />
+                      <Zap size={10} color={theme.colors.accent} fill={theme.colors.accent} />
                       <Text style={styles.auraBonusText}>+{item.auraBonus}</Text>
                     </View>
                   )}

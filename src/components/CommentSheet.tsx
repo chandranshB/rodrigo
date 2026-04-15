@@ -22,6 +22,33 @@ interface CommentSheetProps {
   onClose: () => void;
 }
 
+const CommentItem = React.memo(({ item, user }: { item: any; user: any }) => {
+  if (!user) return null;
+  return (
+    <View style={styles.commentItem}>
+      <Image source={{ uri: user.avatar }} style={styles.avatar} />
+      <View style={styles.commentContent}>
+        <View style={styles.commentHeader}>
+          <Text style={styles.username}>{user.username}</Text>
+          <Text style={styles.timestamp}>{item.timestamp}</Text>
+        </View>
+        <Text style={styles.commentText}>{item.text}</Text>
+        <View style={styles.commentFooter}>
+          <TouchableOpacity style={styles.replyBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={styles.replyText}>Reply</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      <View style={styles.voteContainer}>
+        <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+          <ArrowBigUp size={20} color={theme.colors.text.muted} />
+        </TouchableOpacity>
+        <Text style={styles.voteCount}>{item.auraCount}</Text>
+      </View>
+    </View>
+  );
+});
+
 export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose }) => {
   const translateY = useSharedValue(0);
   const contextY = useSharedValue(0);
@@ -85,6 +112,10 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
     };
   });
 
+  const renderItem = useCallback(({ item }: { item: any }) => (
+    <CommentItem item={item} user={mockUsers[item.userId]} />
+  ), []);
+
   return (
     <View style={styles.sheetWrapper}>
       {/* Backdrop */}
@@ -112,35 +143,16 @@ export const CommentSheet: React.FC<CommentSheetProps> = ({ targetId, onClose })
           <FlatList
             data={filteredComments}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => {
-              const user = mockUsers[item.userId];
-              if (!user) return null;
-              return (
-                <View style={styles.commentItem}>
-                  <Image source={{ uri: user.avatar }} style={styles.avatar} />
-                  <View style={styles.commentContent}>
-                    <View style={styles.commentHeader}>
-                      <Text style={styles.username}>{user.username}</Text>
-                      <Text style={styles.timestamp}>{item.timestamp}</Text>
-                    </View>
-                    <Text style={styles.commentText}>{item.text}</Text>
-                    <View style={styles.commentFooter}>
-                      <TouchableOpacity style={styles.replyBtn}>
-                        <Text style={styles.replyText}>Reply</Text>
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                  <View style={styles.voteContainer}>
-                    <ArrowBigUp size={18} color={theme.colors.text.muted} />
-                    <Text style={styles.voteCount}>{item.auraCount}</Text>
-                  </View>
-                </View>
-              );
-            }}
+            renderItem={renderItem}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="interactive"
+            initialNumToRender={12}
+            maxToRenderPerBatch={10}
+            windowSize={5}
+            removeClippedSubviews={true}
           />
-
           <View style={styles.inputArea}>
             <Image source={{ uri: mockUsers.u1.avatar }} style={styles.inputAvatar} />
             <TextInput

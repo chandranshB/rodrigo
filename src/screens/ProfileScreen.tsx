@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, SafeAreaView, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView, StatusBar, Dimensions } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { mockUsers, mockPosts } from '../data/mockDatabase';
 import LinearGradient from 'react-native-linear-gradient';
@@ -21,8 +22,8 @@ export const ProfileScreen: React.FC = () => {
   const [currentTheme, setCurrentTheme] = useState(user.profileTheme || THEMES[0]);
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="light-content" backgroundColor={currentTheme[0]} />
       <View style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           {/* Profile Header with Gradient */}
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerGradient: {
-    paddingTop: 40,
+    paddingTop: 20,
     paddingBottom: 40,
     alignItems: 'center',
     borderBottomLeftRadius: 30,
@@ -135,8 +136,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     paddingHorizontal: theme.spacing.md,
-    position: 'absolute',
-    top: 20,
+    marginBottom: 10,
   },
   iconBtn: {
     padding: 8,

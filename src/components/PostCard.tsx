@@ -1,10 +1,12 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { theme } from '../theme/theme';
 import { MessageCircle, Share2, MoreHorizontal, ArrowBigUp, ArrowBigDown } from 'lucide-react-native';
 import Animated, { useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
+import { CommentSheet } from './CommentSheet';
 
 interface PostCardProps {
+  id: string;
   user: {
     name: string;
     username: string;
@@ -21,6 +23,7 @@ interface PostCardProps {
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
+  id,
   user,
   mediaUrl,
   caption,
@@ -29,6 +32,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   commentsCount,
   userVoted,
 }) => {
+  const [showComments, setShowComments] = useState(false);
   const upvoteScale = useSharedValue(1);
   const downvoteScale = useSharedValue(1);
 
@@ -103,7 +107,7 @@ export const PostCard: React.FC<PostCardProps> = ({
             </Animated.View>
           </View>
 
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => setShowComments(true)}>
             <MessageCircle size={22} color={theme.colors.text.primary} />
             <Text style={styles.actionText}>{commentsCount}</Text>
           </TouchableOpacity>
@@ -122,6 +126,23 @@ export const PostCard: React.FC<PostCardProps> = ({
         </Text>
         <Text style={styles.timestamp}>{timestamp}</Text>
       </View>
+
+      {/* Comments Sheet Modal */}
+      <Modal
+        visible={showComments}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowComments(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity 
+            style={styles.modalCloseArea} 
+            activeOpacity={1} 
+            onPress={() => setShowComments(false)} 
+          />
+          <CommentSheet targetId={id} onClose={() => setShowComments(false)} />
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -245,5 +266,13 @@ const styles = StyleSheet.create({
     fontSize: 10,
     marginTop: 6,
     textTransform: 'uppercase',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalCloseArea: {
+    flex: 1,
   },
 });

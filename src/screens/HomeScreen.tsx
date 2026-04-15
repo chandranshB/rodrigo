@@ -1,42 +1,48 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, ScrollView, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, ScrollView, StatusBar, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { StoryRing } from '../components/StoryRing';
 import { PostCard } from '../components/PostCard';
 import { mockPosts, mockStories, mockUsers } from '../data/mockDatabase';
 import { Camera, Send } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 
-const HomeHeader = () => (
-  <View>
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.storiesContainer}
-    >
-      <StoryRing
-        avatar={mockUsers.u1.avatar}
-        username="Your Story"
-        hasUnread={false}
-        onPress={() => {}}
-      />
-      {mockStories.map((story) => (
+const HomeHeader = () => {
+  const navigation = useNavigation<any>();
+
+  return (
+    <View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.storiesContainer}
+      >
         <StoryRing
-          key={story.id}
-          avatar={mockUsers[story.userId].avatar}
-          username={mockUsers[story.userId].username}
-          hasUnread={!story.viewed}
+          avatar={mockUsers.u1.avatar}
+          username="Your Story"
+          hasUnread={false}
           onPress={() => {}}
         />
-      ))}
-    </ScrollView>
-    <View style={styles.divider} />
-  </View>
-);
+        {mockStories.map((story) => (
+          <StoryRing
+            key={story.id}
+            avatar={mockUsers[story.userId].avatar}
+            username={mockUsers[story.userId].username}
+            hasUnread={!story.viewed}
+            onPress={() => navigation.navigate('StoryViewer', { userId: story.userId })}
+          />
+        ))}
+      </ScrollView>
+      <View style={styles.divider} />
+    </View>
+  );
+};
 
 export const HomeScreen: React.FC = () => {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.background} />
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -57,6 +63,7 @@ export const HomeScreen: React.FC = () => {
           renderItem={({ item }) => (
             <View style={styles.postWrapper}>
               <PostCard
+                id={item.id}
                 user={mockUsers[item.userId]}
                 mediaUrl={item.mediaUrl}
                 caption={item.caption}
@@ -67,6 +74,7 @@ export const HomeScreen: React.FC = () => {
               />
             </View>
           )}
+
           contentContainerStyle={styles.listContent}
         />
       </View>

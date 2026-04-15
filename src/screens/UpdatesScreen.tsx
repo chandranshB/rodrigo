@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, SafeAreaView, StatusBar, Image, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, StatusBar, Image, ScrollView } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { theme } from '../theme/theme';
 import { mockEvents, mockCommunities } from '../data/mockDatabase';
 import { Calendar, ChevronRight, Info, Zap, Users, TrendingUp } from 'lucide-react-native';
@@ -66,8 +67,8 @@ const getTypeColor = (type: string) => {
 
 export const UpdatesScreen: React.FC = () => {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.background} />
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>

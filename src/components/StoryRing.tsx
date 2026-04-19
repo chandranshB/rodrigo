@@ -15,8 +15,10 @@ export const StoryRing: React.FC<StoryRingProps> = ({ avatar, username, hasUnrea
     <TouchableOpacity style={styles.container} onPress={onPress}>
       <View style={styles.ringWrapper}>
         <LinearGradient
-          colors={(hasUnread ? theme.colors.gradient.story : ['#333', '#333']) as string[]}
+          colors={(hasUnread ? theme.colors.gradient.premium : [theme.colors.surfaceLight, theme.colors.surfaceLight]) as string[]}
           style={styles.gradient}
+          start={{x: 0.0, y: 0.0}}
+          end={{x: 1.0, y: 1.0}}
         >
           <View style={styles.avatarWrapper}>
             <Image source={{ uri: avatar }} style={styles.avatar} />
@@ -33,39 +35,47 @@ export const StoryRing: React.FC<StoryRingProps> = ({ avatar, username, hasUnrea
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    marginRight: theme.spacing.md,
-    width: 72,
+    marginRight: theme.spacing.lg,
+    width: 80,
   },
   ringWrapper: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
+    width: 76,
+    height: 76,
+    borderRadius: 24, // Squircle shape
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 8,
+    shadowColor: theme.colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   gradient: {
     width: '100%',
     height: '100%',
-    borderRadius: 34,
-    padding: 2.5,
+    borderRadius: 24,
+    padding: 3, // Thicker border
   },
   avatarWrapper: {
     flex: 1,
-    borderRadius: 32,
+    borderRadius: 21,
     backgroundColor: theme.colors.background,
-    padding: 2,
+    padding: 3,
   },
   avatar: {
     flex: 1,
-    borderRadius: 30,
+    borderRadius: 18,
   },
   username: {
     color: theme.colors.text.primary,
-    fontSize: 11,
+    fontSize: 13,
     textAlign: 'center',
+    fontWeight: '600',
+    letterSpacing: 0.3,
   },
   viewedText: {
-    color: theme.colors.text.muted,
+    color: theme.colors.text.secondary,
+    fontWeight: '400',
   },
 });

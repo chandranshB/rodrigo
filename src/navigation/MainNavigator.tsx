@@ -16,11 +16,11 @@ import { StoryViewerScreen } from '../screens/StoryViewerScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const HomeIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Home color={color} size={size} weight={focused ? "fill" : "duotone"} />;
-const UpdatesIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Bell color={color} size={size} weight={focused ? "fill" : "duotone"} />;
-const ReelsIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <PlayCircle color={color} size={size} weight={focused ? "fill" : "duotone"} />;
-const SearchIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Search color={color} size={size} weight={focused ? "fill" : "duotone"} />;
-const ProfileIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <User color={color} size={size} weight={focused ? "fill" : "duotone"} />;
+const HomeIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Home color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
+const UpdatesIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Bell color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
+const ReelsIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <PlayCircle color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
+const SearchIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Search color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
+const ProfileIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <User color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -30,15 +30,25 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: false,
         tabBarStyle: {
-          backgroundColor: theme.colors.background,
-          borderTopColor: theme.colors.border,
-          height: 60 + insets.bottom,
-          paddingBottom: insets.bottom > 0 ? insets.bottom : 8,
-          paddingTop: 8,
+          backgroundColor: 'rgba(22, 24, 36, 0.85)',
+          height: 64,
           position: 'absolute',
-          borderTopWidth: 0,
+          bottom: insets.bottom > 0 ? insets.bottom : 20,
+          left: 20,
+          right: 20,
+          borderRadius: 32,
+          borderWidth: 1,
+          borderColor: 'rgba(255, 255, 255, 0.08)',
           elevation: 0,
+          paddingTop: 0,
+          paddingBottom: 0,
+        },
+        safeAreaInsets: { bottom: 0 },
+        tabBarItemStyle: {
+          justifyContent: 'center',
+          alignItems: 'center',
         },
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.text.muted,

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { theme } from '../theme/theme';
-import { ChatCircle as MessageCircle, ShareNetwork as Share2, DotsThree as MoreHorizontal, ArrowFatUp as ArrowBigUp, ArrowFatDown as ArrowBigDown } from 'phosphor-react-native';
+import { ArrowUp, ArrowDown, ChatTeardrop, ShareNetwork, BookmarkSimple, DotsThree } from 'phosphor-react-native';
 import Animated, { useAnimatedStyle, withSpring, useSharedValue } from 'react-native-reanimated';
 import { CommentSheet } from './CommentSheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -34,6 +34,16 @@ export const PostCard: React.FC<PostCardProps> = ({
   userVoted,
 }) => {
   const [showComments, setShowComments] = useState(false);
+  const [voteStatus, setVoteStatus] = useState<'up' | 'down' | null>(userVoted || null);
+  
+  // Calculate display count
+  let displayAura = auraCount;
+  if (userVoted === 'up') displayAura -= 1; // Assuming initial auraCount includes the upvote if userVoted === 'up'
+  else if (userVoted === 'down') displayAura += 1;
+  
+  if (voteStatus === 'up') displayAura += 1;
+  else if (voteStatus === 'down') displayAura -= 1;
+
   const upvoteScale = useSharedValue(1);
   const downvoteScale = useSharedValue(1);
 
@@ -47,12 +57,19 @@ export const PostCard: React.FC<PostCardProps> = ({
 
   const handleVote = (type: 'up' | 'down') => {
     const springConfig = { damping: 15, stiffness: 300 };
+    
     if (type === 'up') {
-      upvoteScale.value = withSpring(1.4, springConfig, () => {
+      if (voteStatus === 'up') setVoteStatus(null);
+      else setVoteStatus('up');
+      
+      upvoteScale.value = withSpring(1.3, springConfig, () => {
         upvoteScale.value = withSpring(1, springConfig);
       });
     } else {
-      downvoteScale.value = withSpring(1.4, springConfig, () => {
+      if (voteStatus === 'down') setVoteStatus(null);
+      else setVoteStatus('down');
+      
+      downvoteScale.value = withSpring(1.3, springConfig, () => {
         downvoteScale.value = withSpring(1, springConfig);
       });
     }
@@ -65,15 +82,15 @@ export const PostCard: React.FC<PostCardProps> = ({
         <View style={styles.userInfo}>
           <Image source={{ uri: user.avatar }} style={styles.avatar} />
           <View style={styles.nameContainer}>
+            <Text style={styles.name}>{user.name}</Text>
             <View style={styles.usernameRow}>
-              <Text style={styles.name}>{user.name}</Text>
+              <Text style={styles.username}>@{user.username}</Text>
               {user.isVerified && <View style={styles.verifyDot} />}
             </View>
-            <Text style={styles.username}>@{user.username}</Text>
           </View>
         </View>
-        <TouchableOpacity>
-          <MoreHorizontal color={theme.colors.text.muted} size={20} />
+        <TouchableOpacity style={styles.moreButton}>
+          <DotsThree color={theme.colors.text.secondary} size={24} weight="bold" />
         </TouchableOpacity>
       </View>
 
@@ -85,38 +102,49 @@ export const PostCard: React.FC<PostCardProps> = ({
       {/* Interactions */}
       <View style={styles.interactions}>
         <View style={styles.leftActions}>
-          <View style={styles.voteContainer}>
+          
+          <View style={styles.votePill}>
             <Animated.View style={upvoteStyle}>
-              <TouchableOpacity onPress={() => handleVote('up')}>
-                <ArrowBigUp
-                  size={24}
-                  color={userVoted === 'up' ? theme.colors.accent : theme.colors.text.primary}
-                  weight={userVoted === 'up' ? "fill" : "regular"}
+              <TouchableOpacity onPress={() => handleVote('up')} style={styles.voteButton}>
+                <ArrowUp
+                  size={20}
+                  color={voteStatus === 'up' ? theme.colors.accent : theme.colors.text.primary}
+                  weight={voteStatus === 'up' ? "bold" : "regular"}
                 />
               </TouchableOpacity>
             </Animated.View>
-            <Text style={[styles.voteCount, userVoted === 'up' && styles.upvotedText, userVoted === 'down' && styles.downvotedText]}>
-              {auraCount}
+            
+            <Text style={[
+              styles.voteCount, 
+              voteStatus === 'up' && styles.voteCountUp,
+              voteStatus === 'down' && styles.voteCountDown
+            ]}>
+              {displayAura}
             </Text>
+            
             <Animated.View style={downvoteStyle}>
-              <TouchableOpacity onPress={() => handleVote('down')}>
-                <ArrowBigDown
-                  size={24}
-                  color={userVoted === 'down' ? '#FF4500' : theme.colors.text.primary}
-                  weight={userVoted === 'down' ? "fill" : "regular"}
+              <TouchableOpacity onPress={() => handleVote('down')} style={styles.voteButton}>
+                <ArrowDown
+                  size={20}
+                  color={voteStatus === 'down' ? '#FF3A44' : theme.colors.text.primary}
+                  weight={voteStatus === 'down' ? "bold" : "regular"}
                 />
               </TouchableOpacity>
             </Animated.View>
           </View>
-
-          <TouchableOpacity style={styles.actionButton} onPress={() => setShowComments(true)}>
-            <MessageCircle size={22} color={theme.colors.text.primary} />
+          
+          <TouchableOpacity style={styles.actionIcon} onPress={() => setShowComments(true)}>
+            <ChatTeardrop size={22} color={theme.colors.text.primary} weight="duotone" />
             <Text style={styles.actionText}>{commentsCount}</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity style={styles.actionIconOnly}>
+            <ShareNetwork size={22} color={theme.colors.text.primary} weight="duotone" />
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.actionButton}>
-          <Share2 size={22} color={theme.colors.text.primary} />
+        <TouchableOpacity style={styles.actionIconOnly}>
+          <BookmarkSimple size={22} color={theme.colors.text.primary} weight="duotone" />
         </TouchableOpacity>
       </View>
 
@@ -126,6 +154,7 @@ export const PostCard: React.FC<PostCardProps> = ({
           <Text style={styles.captionUsername}>{user.username} </Text>
           {caption}
         </Text>
+        
         <Text style={styles.timestamp}>{timestamp}</Text>
       </View>
 
@@ -157,11 +186,17 @@ const styles = StyleSheet.create({
   },
   container: {
     backgroundColor: theme.colors.surface,
-    marginBottom: theme.spacing.md,
+    marginBottom: theme.spacing.xl,
+    marginHorizontal: theme.spacing.md,
     borderRadius: theme.radius.lg,
-    overflow: 'hidden',
     borderWidth: 1,
     borderColor: theme.colors.border,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 20,
+    elevation: 8,
+    overflow: 'hidden',
   },
   header: {
     flexDirection: 'row',
@@ -174,39 +209,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginRight: theme.spacing.sm,
-    backgroundColor: '#333',
+    width: 44,
+    height: 44,
+    borderRadius: 16,
+    marginRight: 12,
+    backgroundColor: theme.colors.surfaceLight,
   },
   nameContainer: {
     justifyContent: 'center',
   },
+  name: {
+    color: theme.colors.text.primary,
+    fontSize: 16,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+  },
   usernameRow: {
     flexDirection: 'row',
     alignItems: 'center',
-  },
-  name: {
-    color: theme.colors.text.primary,
-    fontWeight: theme.typography.weight.bold,
-    fontSize: theme.typography.size.sm,
+    marginTop: 2,
   },
   verifyDot: {
     width: 6,
     height: 6,
     borderRadius: 3,
-    backgroundColor: theme.colors.primary,
-    marginLeft: 4,
+    backgroundColor: theme.colors.accent,
+    marginLeft: 6,
+    shadowColor: theme.colors.accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 4,
   },
   username: {
-    color: theme.colors.text.muted,
-    fontSize: theme.typography.size.xs,
+    color: theme.colors.text.secondary,
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  moreButton: {
+    padding: 8,
+    backgroundColor: theme.colors.surfaceLight,
+    borderRadius: 12,
   },
   mediaContainer: {
     width: '100%',
     aspectRatio: 1,
-    backgroundColor: '#000',
+    backgroundColor: theme.colors.background,
   },
   media: {
     width: '100%',
@@ -216,45 +263,70 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.sm,
+    padding: theme.spacing.md,
+    paddingBottom: theme.spacing.sm,
   },
   leftActions: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  voteContainer: {
+  votePill: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: theme.radius.full,
-    paddingHorizontal: theme.spacing.xs,
-    marginRight: theme.spacing.md,
+    backgroundColor: theme.colors.surfaceLight,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    borderRadius: 24,
+    marginRight: 12,
+  },
+  voteButton: {
+    padding: 6,
   },
   voteCount: {
     color: theme.colors.text.primary,
-    fontSize: theme.typography.size.sm,
-    fontWeight: theme.typography.weight.bold,
-    marginHorizontal: theme.spacing.xs,
-    minWidth: 24,
+    fontSize: 14,
+    fontWeight: '700',
+    marginHorizontal: 4,
+    minWidth: 20,
     textAlign: 'center',
   },
-  upvotedText: {
+  voteCountUp: {
     color: theme.colors.accent,
   },
-  downvotedText: {
-    color: '#FF4500',
+  voteCountDown: {
+    color: '#FF3A44',
   },
-  actionButton: {
+  actionIcon: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: theme.spacing.md,
+    backgroundColor: theme.colors.surfaceLight,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginRight: 12,
+  },
+  actionIconActive: {
+    backgroundColor: theme.colors.primary,
+    shadowColor: theme.colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  actionIconOnly: {
+    padding: 8,
+    backgroundColor: theme.colors.surfaceLight,
+    borderRadius: 20,
+    marginRight: 8,
   },
   actionText: {
     color: theme.colors.text.primary,
-    fontSize: theme.typography.size.sm,
+    fontSize: 14,
+    fontWeight: '600',
     marginLeft: 6,
-    fontWeight: theme.typography.weight.medium,
+  },
+  actionTextActive: {
+    color: theme.colors.background,
   },
   content: {
     paddingHorizontal: theme.spacing.md,
@@ -262,21 +334,25 @@ const styles = StyleSheet.create({
   },
   caption: {
     color: theme.colors.text.primary,
-    fontSize: theme.typography.size.sm,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 22,
+    letterSpacing: 0.2,
   },
   captionUsername: {
-    fontWeight: theme.typography.weight.bold,
+    fontWeight: '700',
+    color: theme.colors.primary,
   },
   timestamp: {
     color: theme.colors.text.muted,
-    fontSize: 10,
-    marginTop: 6,
+    fontSize: 12,
+    marginTop: 8,
+    fontWeight: '500',
     textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'flex-end',
   },
   modalCloseArea: {

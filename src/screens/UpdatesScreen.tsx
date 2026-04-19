@@ -48,7 +48,7 @@ export const UpdatesScreen: React.FC = () => {
                   <View style={[styles.timelineNode, { borderColor: config.color, shadowColor: config.color }]}>
                     <View style={[styles.timelineNodeInner, { backgroundColor: config.color }]} />
                   </View>
-                  {!isLast && <View style={[styles.timelineLine, { borderColor: 'rgba(255,255,255,0.1)' }]} />}
+                  {!isLast && <View style={[styles.timelineLine, styles.timelineLineBorder]} />}
                 </View>
 
                 {/* Timeline Content Card (Right Side) */}
@@ -164,6 +164,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginVertical: 4,
     zIndex: 1,
+  },
+  timelineLineBorder: {
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   timelineContent: {
     flex: 1,

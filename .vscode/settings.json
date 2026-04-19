@@ -1,2 +1,5 @@
 {
+  "java.project.exclusionPaths": [
+    "node_modules"
+  ]
 }

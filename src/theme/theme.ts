@@ -1,25 +1,26 @@
 export const theme = {
   colors: {
-    primary: '#6C63FF', // Modern violet
-    secondary: '#FF6584', // Playful pink
-    accent: '#00D09C', // Emerald for Aura
-    background: '#0F0F12', // Deep dark background
-    surface: '#1A1A22', // Slightly lighter surface
+    primary: '#B392F0', // Soft Lavender
+    secondary: '#F2C94C', // Vibrant Gold
+    accent: '#00F0FF', // Cyber Cyan
+    background: '#0D0E15', // Midnight Void
+    surface: '#161824', // Deep Surface
+    surfaceLight: '#222536',
     text: {
       primary: '#FFFFFF',
-      secondary: '#A1A1AA',
-      muted: '#71717A',
+      secondary: '#9BA1B0',
+      muted: '#636878',
     },
-    border: '#27272A',
+    border: '#2A2D3E',
     gradient: {
-      aura: ['#00D09C', '#00A87E'],
-      premium: ['#6C63FF', '#FF6584'],
-      story: ['#FF6584', '#FF9A8B', '#FFD1FF'],
+      aura: ['#00F0FF', '#0075FF'],
+      premium: ['#B392F0', '#FF8A00'],
+      story: ['#F2C94C', '#FF3A44'],
     },
   },
   typography: {
     fontFamily: {
-      regular: 'System', // Using system fonts for reliability and elegance
+      regular: 'System',
       bold: 'System',
     },
     size: {
@@ -46,8 +47,9 @@ export const theme = {
   },
   radius: {
     sm: 8,
-    md: 12,
-    lg: 20,
+    md: 16,
+    lg: 24,
+    xl: 32,
     full: 999,
   },
 } as const;

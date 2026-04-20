@@ -4,6 +4,7 @@ import { createStackNavigator, TransitionPresets } from '@react-navigation/stack
 import { NavigationContainer } from '@react-navigation/native';
 import { theme } from '../theme/theme';
 import { House as Home, Bell, User, MagnifyingGlass as Search, PlayCircle } from 'phosphor-react-native';
+import { CustomTabBar } from './CustomTabBar';
 
 // Import Screens
 import { HomeScreen } from '../screens/HomeScreen';
@@ -22,36 +23,13 @@ const ReelsIcon = ({ color, size, focused }: { color: string; size: number, focu
 const SearchIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Search color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
 const ProfileIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <User color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
 const TabNavigator = () => {
-  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
+      tabBar={CustomTabBar}
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarStyle: {
-          backgroundColor: 'rgba(22, 24, 36, 0.85)',
-          height: 64,
-          position: 'absolute',
-          bottom: insets.bottom > 0 ? insets.bottom : 20,
-          left: 20,
-          right: 20,
-          borderRadius: 32,
-          borderWidth: 1,
-          borderColor: 'rgba(255, 255, 255, 0.08)',
-          elevation: 0,
-          paddingTop: 0,
-          paddingBottom: 0,
-        },
-        safeAreaInsets: { bottom: 0 },
-        tabBarItemStyle: {
-          justifyContent: 'center',
-          alignItems: 'center',
-        },
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.text.muted,
       }}
     >
       <Tab.Screen

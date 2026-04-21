@@ -26,7 +26,7 @@ const ProfileIcon = ({ color, size, focused }: { color: string; size: number, fo
 const TabNavigator = () => {
   return (
     <Tab.Navigator
-      tabBar={CustomTabBar}
+      tabBar={(props) => <CustomTabBar {...props} />}
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,

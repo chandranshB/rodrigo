@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   blurOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    ...StyleSheet.absoluteFill,
   },
   content: {
     flexDirection: 'row',

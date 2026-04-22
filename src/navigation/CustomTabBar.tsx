@@ -6,7 +6,6 @@ import {
   Platform,
   useWindowDimensions,
 } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -49,23 +48,16 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
   }));
 
   const BAR_HEIGHT = 64;
-  // Extra overflow to kill any sub-pixel gap at the bottom edge
-  const OVERFLOW = 20;
 
   return (
-    <BlurView
-      style={[
-        styles.container,
-        { 
-          height: BAR_HEIGHT + insets.bottom + OVERFLOW,
-          paddingBottom: insets.bottom + OVERFLOW,
-          width: windowWidth,
-        }
-      ]}
-      blurType="dark"
-      blurAmount={20}
-      reducedTransparencyFallbackColor="rgba(13, 14, 21, 0.96)"
-    >
+    <View style={[
+      styles.container,
+      { 
+        height: BAR_HEIGHT + insets.bottom + 2,
+        paddingBottom: insets.bottom + 2,
+        width: windowWidth,
+      }
+    ]}>
       {/* Sliding Top Glow Line */}
       <Animated.View style={[styles.activeIndicatorContainer, animatedIndicatorStyle, { width: TAB_WIDTH }]}>
         <View style={styles.topGlowLine} />
@@ -103,7 +95,7 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
           );
         })}
       </View>
-    </BlurView>
+    </View>
   );
 };
 
@@ -156,7 +148,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     marginBottom: 0,
-    overflow: 'hidden',
+    backgroundColor: 'rgba(13, 14, 21, 0.96)', // Deep midnight with slight transparency
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
     borderTopWidth: 1,

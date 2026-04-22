@@ -17,16 +17,18 @@ import { StoryViewerScreen } from '../screens/StoryViewerScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const HomeIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Home color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
-const UpdatesIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Bell color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
-const ReelsIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <PlayCircle color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
-const SearchIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Search color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
-const ProfileIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <User color={focused ? theme.colors.primary : color} size={size} weight={focused ? "fill" : "duotone"} />;
+const HomeIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Home color={color} size={size} weight={focused ? "fill" : "regular"} />;
+const UpdatesIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Bell color={color} size={size} weight={focused ? "fill" : "regular"} />;
+const ReelsIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <PlayCircle color={color} size={size} weight={focused ? "fill" : "regular"} />;
+const SearchIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <Search color={color} size={size} weight={focused ? "bold" : "regular"} />;
+const ProfileIcon = ({ color, size, focused }: { color: string; size: number, focused: boolean }) => <User color={color} size={size} weight={focused ? "fill" : "regular"} />;
+
+const renderTabBar = (props: any) => <CustomTabBar {...props} />;
 
 const TabNavigator = () => {
   return (
     <Tab.Navigator
-      tabBar={(props) => <CustomTabBar {...props} />}
+      tabBar={renderTabBar}
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,

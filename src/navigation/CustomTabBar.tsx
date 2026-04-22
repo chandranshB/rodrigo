@@ -14,75 +14,61 @@ import Animated, {
   withSequence,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import LinearGradient from 'react-native-linear-gradient';
 import { theme } from '../theme/theme';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-
-const TAB_BAR_MARGIN = 24; // More breathing room for elegance
 
 const ELEGANT_SPRING = {
   damping: 22,
   stiffness: 280,
-  mass: 0.4,
+  mass: 0.6,
   restDisplacementThreshold: 0.01,
   restSpeedThreshold: 0.01,
+};
+
+const ICON_SPRING = {
+  damping: 12,
+  stiffness: 300,
+  mass: 0.5,
 };
 
 export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   
-  const TAB_BAR_WIDTH = windowWidth - (TAB_BAR_MARGIN * 2);
-  const TAB_WIDTH = TAB_BAR_WIDTH / state.routes.length;
+  const TAB_WIDTH = windowWidth / state.routes.length;
   
   const translateX = useSharedValue(state.index * TAB_WIDTH);
-  const containerScale = useSharedValue(1);
 
   useEffect(() => {
     translateX.value = withSpring(state.index * TAB_WIDTH, ELEGANT_SPRING);
   }, [state.index, TAB_WIDTH, translateX]);
 
-  const animatedPillStyle = useAnimatedStyle(() => ({
+  const animatedIndicatorStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
   }));
 
-  const animatedContainerStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: containerScale.value }],
-  }));
+  const BAR_HEIGHT = 64;
 
   return (
-    <Animated.View style={[
+    <View style={[
       styles.container,
-      animatedContainerStyle,
       { 
-        bottom: Math.max(insets.bottom, 20),
-        width: TAB_BAR_WIDTH,
+        height: BAR_HEIGHT + insets.bottom + 2,
+        paddingBottom: insets.bottom + 2,
+        width: windowWidth,
       }
     ]}>
-      {/* Ultra-minimalist Background Blur */}
-      <View style={styles.blurOverlay} />
-      
-      <View style={styles.content}>
-        {/* The Soft Aura Glow Background */}
-        <Animated.View style={[styles.activePill, animatedPillStyle, { width: TAB_WIDTH }]}>
-          <LinearGradient
-            colors={['rgba(179, 146, 240, 0.15)', 'transparent']}
-            style={styles.pillGradient}
-            start={{ x: 0.5, y: 0 }}
-            end={{ x: 0.5, y: 1 }}
-          />
-        </Animated.View>
+      {/* Sliding Top Glow Line */}
+      <Animated.View style={[styles.activeIndicatorContainer, animatedIndicatorStyle, { width: TAB_WIDTH }]}>
+        <View style={styles.topGlowLine} />
+      </Animated.View>
 
+      <View style={styles.content}>
         {state.routes.map((route, index) => {
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
 
           const onPress = () => {
-            containerScale.value = withSequence(
-              withTiming(0.97, { duration: 80 }),
-              withSpring(1, ELEGANT_SPRING)
-            );
-
             const event = navigation.emit({
               type: 'tabPress',
               target: route.key,
@@ -99,7 +85,7 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
               key={route.key}
               onPress={onPress}
               style={styles.tabItem}
-              activeOpacity={1}
+              activeOpacity={0.8}
             >
               <TabIcon 
                 isFocused={isFocused} 
@@ -109,127 +95,111 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
           );
         })}
       </View>
-    </Animated.View>
+    </View>
   );
 };
 
-// Memoized TabIcon for performance and stability
+// Memoized TabIcon for fluid interaction
 const TabIcon = React.memo(({ isFocused, options }: any) => {
   const Icon = options.tabBarIcon;
-  const scale = useSharedValue(isFocused ? 1.15 : 1);
-  const opacity = useSharedValue(isFocused ? 1 : 0.4);
-  const dotScale = useSharedValue(isFocused ? 1 : 0);
+  const scale = useSharedValue(isFocused ? 1.2 : 0.95);
+  const translateY = useSharedValue(isFocused ? -6 : 0);
+  const opacity = useSharedValue(isFocused ? 1 : 0.85);
 
   useEffect(() => {
-    scale.value = withSpring(isFocused ? 1.15 : 1, ELEGANT_SPRING);
-    opacity.value = withTiming(isFocused ? 1 : 0.4, { duration: 200 });
-    dotScale.value = withSpring(isFocused ? 1 : 0, ELEGANT_SPRING);
-  }, [isFocused, scale, opacity, dotScale]);
+    if (isFocused) {
+      scale.value = withSequence(
+        withTiming(0.85, { duration: 60 }),
+        withSpring(1.2, ICON_SPRING)
+      );
+      translateY.value = withSequence(
+        withTiming(2, { duration: 60 }),
+        withSpring(-6, ICON_SPRING)
+      );
+    } else {
+      scale.value = withSpring(0.95, ICON_SPRING);
+      translateY.value = withSpring(0, ICON_SPRING);
+    }
+    opacity.value = withTiming(isFocused ? 1 : 0.85, { duration: 250 });
+  }, [isFocused, scale, translateY, opacity]);
 
   const animatedIconStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
+    transform: [
+      { scale: scale.value },
+      { translateY: translateY.value }
+    ],
     opacity: opacity.value,
   }));
 
-  const animatedDotStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: dotScale.value }],
-    opacity: dotScale.value,
-  }));
-
   return (
-    <View style={styles.iconWrapper}>
-      <Animated.View style={animatedIconStyle}>
-        {Icon && <Icon 
-          focused={isFocused} 
-          color={isFocused ? '#FFFFFF' : theme.colors.text.muted} 
-          size={24} 
-        />}
-      </Animated.View>
-      
-      {/* Minimalist Active Dot */}
-      <Animated.View style={[styles.activeDot, animatedDotStyle]} />
-      
-      {/* Soft Aura Glow Layer */}
-      {isFocused && (
-        <View style={styles.auraGlow} />
-      )}
-    </View>
+    <Animated.View style={[styles.iconWrapper, animatedIconStyle]}>
+      {Icon && <Icon 
+        focused={isFocused} 
+        color={isFocused ? '#FFFFFF' : theme.colors.text.secondary} 
+        size={24} 
+      />}
+    </Animated.View>
   );
 });
 
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    alignSelf: 'center',
-    height: 64,
-    backgroundColor: 'rgba(13, 14, 21, 0.8)', // Deep Midnight Void
-    borderRadius: 32,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.08)',
+    bottom: 0,
+    left: 0,
+    marginBottom: 0,
+    backgroundColor: 'rgba(13, 14, 21, 0.96)', // Deep midnight with slight transparency
+    borderTopLeftRadius: 28,
+    borderTopRightRadius: 28,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.06)',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 12 },
+        shadowOffset: { width: 0, height: -8 },
         shadowOpacity: 0.4,
-        shadowRadius: 20,
+        shadowRadius: 16,
       },
       android: {
-        elevation: 10,
+        elevation: 24,
       },
     }),
-    overflow: 'hidden',
-  },
-  blurOverlay: {
-    ...StyleSheet.absoluteFill,
   },
   content: {
     flexDirection: 'row',
-    height: '100%',
+    flex: 1,
     zIndex: 2,
+    alignItems: 'center',
   },
   tabItem: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    height: '100%',
   },
-  activePill: {
+  activeIndicatorContainer: {
     position: 'absolute',
     height: '100%',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     zIndex: 1,
   },
-  pillGradient: {
-    width: '60%',
-    height: '80%',
-    borderRadius: 20,
-  },
-  iconWrapper: {
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    width: 50,
-  },
-  activeDot: {
-    position: 'absolute',
-    bottom: 12,
-    width: 4,
+  topGlowLine: {
+    width: '40%',
     height: 4,
-    borderRadius: 2,
+    borderBottomLeftRadius: 4,
+    borderBottomRightRadius: 4,
     backgroundColor: theme.colors.primary,
     shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 1,
-    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.9,
+    shadowRadius: 8,
   },
-  auraGlow: {
-    position: 'absolute',
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: theme.colors.primary,
-    opacity: 0.15,
-    transform: [{ scale: 2.2 }],
-    zIndex: -1,
-  }
+
+  iconWrapper: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

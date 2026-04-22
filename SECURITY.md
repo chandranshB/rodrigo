@@ -2,45 +2,35 @@
 
 ## Supported Versions
 
+As Rodrigo is currently in active early development, only the latest version on the `main` branch receives security fixes.
+
 | Version | Supported |
-|---------|-----------|
-| latest  | ✅        |
+|---|---|
+| `main` (latest) | Yes |
+| Older commits | No |
 
 ## Reporting a Vulnerability
 
-**Please do not open a public GitHub issue for security vulnerabilities.**
+Please do not report security vulnerabilities through public GitHub issues.
 
-Report security issues privately via GitHub's built-in security advisory system:
+If you discover a vulnerability, report it privately by emailing the maintainer directly or by using [GitHub's private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability) feature on this repository.
 
-1. Go to the **Security** tab of this repository
-2. Click **"Report a vulnerability"**
-3. Fill in the details
-
-You can also reach out directly through the contact on the GitHub profile.
-
-### What to include
+When reporting, please include:
 
 - A clear description of the vulnerability
-- Steps to reproduce
-- Potential impact
-- Any suggested fix (optional)
+- Steps to reproduce the issue
+- The potential impact
+- Any suggested fix, if you have one
 
-### What to expect
-
-- Acknowledgement within **48 hours**
-- A fix or mitigation plan within **7 days** for critical issues
-- Credit in the release notes if you wish
+You can expect an acknowledgement within 48 hours. We will keep you updated as the issue is investigated and resolved.
 
 ## Scope
 
-This is a React Native mobile application. The main areas of concern are:
+The following are considered in scope for security reports:
 
-- Hardcoded secrets or credentials in source code
+- Authentication or authorisation bypass
+- Data exposure or leakage
+- Injection vulnerabilities
 - Insecure data storage on device
-- Insecure network communication
-- Dependency vulnerabilities (please also open a Dependabot alert if applicable)
 
-## Out of Scope
-
-- Issues in third-party dependencies (report those upstream)
-- UI/UX bugs (open a regular issue)
+General bugs, UI issues, and feature requests should be filed as regular [GitHub Issues](../../issues).

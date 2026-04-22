@@ -1,97 +1,185 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Rodrigo
 
-# Getting Started
+A mobile-first social platform built with React Native, designed for our university campus.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+[![React Native](https://img.shields.io/badge/React%20Native-0.85.1-61DAFB?style=flat-square&logo=react)](https://reactnative.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org)
+[![License](https://img.shields.io/badge/license-MIT-green?style=flat-square)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D22.11.0-brightgreen?style=flat-square&logo=node.js)](https://nodejs.org)
 
-## Step 1: Start Metro
+---
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+## Table of Contents
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+- [Motivation](#motivation)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Scripts](#scripts)
+- [Design System](#design-system)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [Security](#security)
+- [License](#license)
 
-```sh
-# Using npm
-npm start
+---
 
-# OR using Yarn
-yarn start
+## Motivation
+
+Our campus is a busy, fragmented place. Students across different departments rarely interact, clubs struggle to reach people outside their immediate circle, and important announcements get buried or missed entirely. Most people have no idea what events, workshops, or competitions are happening — let alone how to get involved.
+
+Rodrigo was built to fix that. It is a single place where students can post, share, and talk across the entire campus — not just within their department or friend group. The Chronicle feed surfaces official updates, club activities, fests, and alerts in a structured timeline so nothing slips through. The Aura system rewards genuine participation, giving visibility to people who contribute to the community rather than just consume it.
+
+Starting here, with one university. Where it goes from there, we will see.
+
+---
+
+## Features
+
+| Feature | Description |
+|---|---|
+| Aura System | A reputation score that rises and falls with community engagement. Posts, comments, and interactions all contribute. |
+| Feed | Scrollable post feed with animated up/down voting, comment sheets, bookmarking, and sharing. |
+| Stories | Horizontal story rings with unread indicators and a full-screen story viewer. |
+| Reels | Short-form vertical video feed. |
+| Chronicle | A timeline-style board for official announcements, events, competitions, and alerts — with optional Aura bonus rewards. |
+| Profile | Customisable gradient profile themes, post grid, follower/following stats, and bio. |
+| Custom Tab Bar | Fully custom bottom navigation with smooth transitions. |
+| Dark-first Design | Deep background with a lavender, cyan, and gold accent palette and glassmorphic card surfaces. |
+
+---
+
+## Tech Stack
+
+| Layer | Library |
+|---|---|
+| Framework | React Native 0.85 |
+| Language | TypeScript 5.8 |
+| Navigation | React Navigation 7 (Stack + Bottom Tabs) |
+| Animations | React Native Reanimated 4 + Worklets |
+| Gestures | React Native Gesture Handler 2 |
+| Icons | Phosphor React Native |
+| Gradients | React Native Linear Gradient |
+| Blur | @react-native-community/blur |
+| SVG | React Native SVG |
+| Safe Area | React Native Safe Area Context |
+
+---
+
+## Project Structure
+
+```
+src/
+├── components/       # Reusable UI components (PostCard, StoryRing, AuraBadge, CommentSheet)
+├── data/             # Mock database and TypeScript type definitions
+├── navigation/       # Stack + Tab navigators, custom tab bar
+├── screens/          # HomeScreen, ExploreScreen, ReelsScreen, UpdatesScreen, ProfileScreen, StoryViewerScreen
+└── theme/            # Centralised design tokens (colors, typography, spacing, radii)
 ```
 
-## Step 2: Build and run your app
+---
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+## Getting Started
 
-### Android
+### Prerequisites
+
+- [Node.js](https://nodejs.org) >= 22.11.0
+- A configured [React Native environment](https://reactnative.dev/docs/set-up-your-environment) for Android and/or iOS
+- For iOS: Ruby and CocoaPods
+
+### Installation
 
 ```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+git clone https://github.com/your-username/rodrigo.git
+cd rodrigo
+npm install
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+For iOS, install native dependencies:
 
 ```sh
 bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
 bundle exec pod install
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+### Running the App
+
+Start the Metro bundler:
 
 ```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
+npm start
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+Then, in a separate terminal, run on your target platform:
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```sh
+# Android
+npm run android
 
-## Step 3: Modify your app
+# iOS
+npm run ios
+```
 
-Now that you have successfully run the app, let's make changes!
+---
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+## Scripts
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+| Command | Description |
+|---|---|
+| `npm start` | Start the Metro dev server |
+| `npm run android` | Build and run on Android |
+| `npm run ios` | Build and run on iOS |
+| `npm run lint` | Run ESLint |
+| `npm test` | Run the Jest test suite |
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+---
 
-## Congratulations! :tada:
+## Design System
 
-You've successfully run and modified your React Native App. :partying_face:
+All design tokens live in `src/theme/theme.ts` and are imported across the app. Avoid hardcoding colors, spacing, or typography values outside of this file.
 
-### Now what?
+| Token | Hex | Usage |
+|---|---|---|
+| `primary` | `#B392F0` | Interactive elements, active states |
+| `secondary` | `#F2C94C` | Highlights |
+| `accent` | `#00F0FF` | Aura indicators, verified badges |
+| `background` | `#0D0E15` | App background |
+| `surface` | `#161824` | Card and sheet backgrounds |
+| `surfaceLight` | `#222536` | Elevated surfaces, pill buttons |
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+---
 
-# Troubleshooting
+## Roadmap
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+The next major milestone is an open-source theme marketplace for profile pages. Instead of the generic, identical profiles you get on platforms like Instagram or Facebook, users will be able to install, share, and publish custom profile themes — built by the community, for the community. Developers will be able to contribute themes directly to the marketplace as open-source packages.
 
-# Learn More
+---
 
-To learn more about React Native, take a look at the following resources:
+## Contributing
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+Contributions are welcome. Please open an issue first to discuss the change you have in mind, then submit a pull request against `main`.
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/your-feature`
+3. Commit your changes using [Conventional Commits](https://www.conventionalcommits.org): `git commit -m 'feat: add your feature'`
+4. Push the branch and open a pull request
+
+Please make sure your code passes linting and tests before submitting:
+
+```sh
+npm run lint
+npm test
+```
+
+---
+
+## Security
+
+To report a security vulnerability, please refer to [SECURITY.md](SECURITY.md). Do not open a public issue for security-related matters.
+
+---
+
+## License
+
+Distributed under the MIT License. See [LICENSE](LICENSE) for details.

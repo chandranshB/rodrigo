@@ -18,6 +18,7 @@ A mobile-first social platform built with React Native, designed for our univers
 - [Getting Started](#getting-started)
 - [Scripts](#scripts)
 - [Design System](#design-system)
+- [Privacy & Ethics](#privacy--ethics)
 - [Roadmap](#roadmap)
 - [Contributing](#contributing)
 - [Security](#security)
@@ -147,6 +148,24 @@ All design tokens live in `src/theme/theme.ts` and are imported across the app. 
 | `background` | `#0D0E15` | App background |
 | `surface` | `#161824` | Card and sheet backgrounds |
 | `surfaceLight` | `#222536` | Elevated surfaces, pill buttons |
+
+---
+
+## Privacy & Ethics
+
+Rodrigo is built privacy-first. This is not a policy checkbox — it is a core design principle that shapes every feature and technical decision.
+
+**What this means in practice:**
+
+- **Minimal data collection.** We only collect what is strictly necessary for the platform to function. No silent tracking, no behavioural profiling, no selling or sharing of user data with third parties.
+- **Transparency.** Users are always informed about what data is collected, why it is collected, and how long it is retained. No dark patterns, no buried consent flows.
+- **User control.** Users can view, export, and delete their data at any time. Account deletion is permanent and complete.
+- **Safe by default.** Privacy-protective settings are the default, not an opt-in. Users should not have to dig through settings to protect themselves.
+- **Online safety.** The platform is designed to be a safe space for students. Harassment, hate speech, and harmful content are not tolerated. Reporting and moderation tools are a first-class feature, not an afterthought.
+- **Ethical design.** We do not use manipulative engagement mechanics — no infinite scroll traps, no notification spam engineered to maximise time-on-app at the expense of wellbeing. The Aura system rewards genuine contribution, not addictive behaviour.
+- **No dark patterns.** Interfaces are honest. Buttons do what they say. Consent is informed and freely given.
+
+**For contributors:** Any feature that touches user data, content moderation, or engagement mechanics must be reviewed against these principles before merging. If you are unsure whether something aligns, open a discussion first.
 
 ---
 

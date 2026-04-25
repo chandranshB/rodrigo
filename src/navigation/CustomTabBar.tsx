@@ -1,34 +1,34 @@
 import React, { useEffect } from 'react';
 import {
   View,
-  TouchableOpacity,
   StyleSheet,
   Platform,
   useWindowDimensions,
+  Pressable,
 } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withSpring,
   withTiming,
-  withSequence,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { BlurView } from '@react-native-community/blur';
 import { theme } from '../theme/theme';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 const ELEGANT_SPRING = {
-  damping: 22,
+  damping: 24,
   stiffness: 280,
   mass: 0.6,
   restDisplacementThreshold: 0.01,
   restSpeedThreshold: 0.01,
 };
 
-const ICON_SPRING = {
-  damping: 12,
-  stiffness: 300,
-  mass: 0.5,
+const TACTILE_SPRING = {
+  damping: 18,
+  stiffness: 350,
+  mass: 0.4,
 };
 
 export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
@@ -47,20 +47,29 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
     transform: [{ translateX: translateX.value }],
   }));
 
-  const BAR_HEIGHT = 64;
+  const BAR_HEIGHT = 64; // Sleeker, minimal height
 
   return (
     <View style={[
       styles.container,
       { 
-        height: BAR_HEIGHT + insets.bottom + 2,
-        paddingBottom: insets.bottom + 2,
+        height: BAR_HEIGHT + insets.bottom,
+        paddingBottom: insets.bottom,
         width: windowWidth,
       }
     ]}>
-      {/* Sliding Top Glow Line */}
+      {/* Premium Glassmorphism Effect */}
+      <BlurView
+        style={StyleSheet.absoluteFill}
+        blurType="dark"
+        blurAmount={25}
+        reducedTransparencyFallbackColor={theme.colors.background}
+      />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(13, 14, 21, 0.75)' }]} />
+
+      {/* Minimal Sliding Indicator */}
       <Animated.View style={[styles.activeIndicatorContainer, animatedIndicatorStyle, { width: TAB_WIDTH }]}>
-        <View style={styles.topGlowLine} />
+        <View style={styles.topIndicatorDash} />
       </Animated.View>
 
       <View style={styles.content}>
@@ -68,30 +77,14 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
           const { options } = descriptors[route.key];
           const isFocused = state.index === index;
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
-
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
-            }
-          };
-
           return (
-            <TouchableOpacity
+            <TabItem
               key={route.key}
-              onPress={onPress}
-              style={styles.tabItem}
-              activeOpacity={0.8}
-            >
-              <TabIcon 
-                isFocused={isFocused} 
-                options={options}
-              />
-            </TouchableOpacity>
+              route={route}
+              isFocused={isFocused}
+              options={options}
+              navigation={navigation}
+            />
           );
         })}
       </View>
@@ -99,46 +92,68 @@ export const CustomTabBar = ({ state, descriptors, navigation }: BottomTabBarPro
   );
 };
 
-// Memoized TabIcon for fluid interaction
-const TabIcon = React.memo(({ isFocused, options }: any) => {
+// Extracted TabItem for intense tactile interactions
+const TabItem = React.memo(({ route, isFocused, options, navigation }: any) => {
   const Icon = options.tabBarIcon;
-  const scale = useSharedValue(isFocused ? 1.2 : 0.95);
-  const translateY = useSharedValue(isFocused ? -6 : 0);
-  const opacity = useSharedValue(isFocused ? 1 : 0.85);
+  
+  // Interaction shared values
+  const scale = useSharedValue(isFocused ? 1 : 0.95);
+  const opacity = useSharedValue(isFocused ? 1 : 0.5);
+  const pressScale = useSharedValue(1);
 
   useEffect(() => {
     if (isFocused) {
-      scale.value = withSequence(
-        withTiming(0.85, { duration: 60 }),
-        withSpring(1.2, ICON_SPRING)
-      );
-      translateY.value = withSequence(
-        withTiming(2, { duration: 60 }),
-        withSpring(-6, ICON_SPRING)
-      );
+      scale.value = withSpring(1, TACTILE_SPRING);
+      opacity.value = withTiming(1, { duration: 200 });
     } else {
-      scale.value = withSpring(0.95, ICON_SPRING);
-      translateY.value = withSpring(0, ICON_SPRING);
+      scale.value = withSpring(0.95, TACTILE_SPRING);
+      opacity.value = withTiming(0.5, { duration: 200 });
     }
-    opacity.value = withTiming(isFocused ? 1 : 0.85, { duration: 250 });
-  }, [isFocused, scale, translateY, opacity]);
+  }, [isFocused, scale, opacity]);
 
   const animatedIconStyle = useAnimatedStyle(() => ({
     transform: [
-      { scale: scale.value },
-      { translateY: translateY.value }
+      { scale: scale.value * pressScale.value }
     ],
     opacity: opacity.value,
   }));
 
+  const handlePressIn = () => {
+    pressScale.value = withSpring(0.85, TACTILE_SPRING); // Minimal squish effect
+  };
+
+  const handlePressOut = () => {
+    pressScale.value = withSpring(1, TACTILE_SPRING); // Spring back
+  };
+
+  const onPress = () => {
+    const event = navigation.emit({
+      type: 'tabPress',
+      target: route.key,
+      canPreventDefault: true,
+    });
+
+    if (!isFocused && !event.defaultPrevented) {
+      navigation.navigate(route.name);
+    }
+  };
+
   return (
-    <Animated.View style={[styles.iconWrapper, animatedIconStyle]}>
-      {Icon && <Icon 
-        focused={isFocused} 
-        color={isFocused ? '#FFFFFF' : theme.colors.text.secondary} 
-        size={24} 
-      />}
-    </Animated.View>
+    <Pressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={styles.tabItem}
+    >
+      <Animated.View style={[styles.iconWrapper, animatedIconStyle]}>
+        {Icon && <Icon 
+          focused={isFocused} 
+          color={isFocused ? '#FFFFFF' : theme.colors.text.secondary} 
+          size={24} 
+          weight={isFocused ? "fill" : "regular"} 
+        />}
+      </Animated.View>
+    </Pressable>
   );
 });
 
@@ -147,14 +162,14 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 0,
     left: 0,
-    marginBottom: 0,
-    backgroundColor: 'rgba(13, 14, 21, 0.96)', // Deep midnight with slight transparency
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,
+    overflow: 'hidden',
     borderTopWidth: 1,
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.06)',
+    // Elegant shadow dropping downward
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -172,6 +187,7 @@ const styles = StyleSheet.create({
     flex: 1,
     zIndex: 2,
     alignItems: 'center',
+    paddingHorizontal: 8,
   },
   tabItem: {
     flex: 1,
@@ -186,18 +202,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     zIndex: 1,
   },
-  topGlowLine: {
-    width: '40%',
-    height: 4,
-    borderBottomLeftRadius: 4,
-    borderBottomRightRadius: 4,
+  topIndicatorDash: {
+    width: 20,
+    height: 3,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
     backgroundColor: theme.colors.primary,
     shadowColor: theme.colors.primary,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.9,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 6,
+    elevation: 4,
   },
-
   iconWrapper: {
     justifyContent: 'center',
     alignItems: 'center',

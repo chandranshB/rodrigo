@@ -4,6 +4,7 @@ import { createStackNavigator, TransitionPresets } from '@react-navigation/stack
 import { NavigationContainer } from '@react-navigation/native';
 import { House as Home, Bell, User, MagnifyingGlass as Search, PlayCircle } from 'phosphor-react-native';
 import { CustomTabBar } from './CustomTabBar';
+import { NoiseBackground } from '../components/NoiseBackground';
 
 // Import Screens
 import { HomeScreen } from '../screens/HomeScreen';
@@ -86,6 +87,9 @@ export const MainNavigator = () => {
           }}
         />
       </Stack.Navigator>
+      
+      {/* Global Matte Film Grain */}
+      <NoiseBackground opacity={0.06} />
     </NavigationContainer>
   );
 };

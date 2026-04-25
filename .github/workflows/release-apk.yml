@@ -44,6 +44,22 @@ jobs:
         run: |
           echo "$RELEASE_KEYSTORE_BASE64" | base64 --decode > android/app/release.keystore
 
+      - name: Validate release keystore
+        env:
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+        run: |
+          echo "--- Keystore file info ---"
+          file android/app/release.keystore
+          ls -la android/app/release.keystore
+          echo "--- Listing keystore entries ---"
+          keytool -list -keystore android/app/release.keystore \
+            -storepass "$RELEASE_STORE_PASSWORD" \
+            -alias "$RELEASE_KEY_ALIAS" || {
+            echo "::error::Keystore is invalid or corrupted. Re-encode with: base64 -w 0 release.keystore"
+            exit 1
+          }
+
       - name: Write keystore.properties
         # Use env vars to write the file — values are never interpolated into shell strings
         env:

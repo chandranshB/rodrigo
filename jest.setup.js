@@ -1,3 +1,5 @@
+/* eslint-env jest */
+
 // Mock react-native-gesture-handler (must come before any import that touches it)
 jest.mock('react-native-gesture-handler', () => {
   const View = require('react-native').View;
